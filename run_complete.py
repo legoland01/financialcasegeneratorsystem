@@ -8,10 +8,11 @@
 3. 报告生成结果
 
 使用方式：
-    python3 run_complete.py           # 完整流程
-    python3 run_complete.py --stage0  # 仅Stage0
-    python3 run_complete.py --stage1  # Stage0 + Stage1
-    python3 run_complete.py --verify  # 仅验证
+    python3 run_complete.py                   # 完整流程
+    python3 run_complete.py --stage0          # 仅Stage0
+    python3 run_complete.py --stage1          # Stage0 + Stage1
+    python3 run_complete.py --verify          # 仅验证
+    python3 run_complete.py -f 判决书.pdf     # 使用指定判决书文件
 """
 import sys
 import json
@@ -19,6 +20,7 @@ import argparse
 import re
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 # 添加src到路径
 src_path = Path(__file__).parent / "src"
@@ -28,11 +30,30 @@ from loguru import logger
 from src.utils.validator import QualityValidator, validate_pdf
 from src.utils.test_config_injector import TestConfigInjector
 
-# 配置
+# 判决书配置
+DEFAULT_JUDGMENT_DIR = Path("/Users/liuzhen/Documents/河广/Product Development/chatGPT/Digital Law/Digital court/金融法院/法官数字助手/案卷材料样例/融资租赁/(2024)沪74民初721号/OpenCode Trial/测试用判决书")
+DEFAULT_JUDGMENT_FILE = "判决书.pdf"
+
 OPENAI_API_KEY = "sk-fjephnssumhgkxhakpxlfrqayiuckkyogvwkchqutqolqilk"
 OPENAI_API_BASE = "https://api.siliconflow.cn/v1"
 OPENAI_MODEL = "deepseek-ai/DeepSeek-V3.2"
-PDF_PATH = Path("/Users/liuzhen/Documents/河广/Product Development/chatGPT/Digital Law/Digital court/金融法院/法官数字助手/案卷材料样例/融资租赁/(2024)沪74民初721号/OpenCode Trial/测试用判决书/(2024)沪74民初245号.pdf")
+
+
+def find_default_judgment_pdf() -> Optional[Path]:
+    """在默认目录中查找判决书PDF文件"""
+    default_dir = Path("/Users/liuzhen/Documents/河广/Product Development/chatGPT/Digital Law/Digital court/金融法院/法官数字助手/案卷材料样例/融资租赁/(2024)沪74民初721号/OpenCode Trial/测试用判决书")
+
+    if not default_dir.exists():
+        return None
+
+    pdf_files = list(default_dir.glob("*.pdf"))
+    if len(pdf_files) == 1:
+        return pdf_files[0]
+    elif len(pdf_files) > 1:
+        logger.warning(f"默认目录中存在多个PDF文件，使用第一个: {pdf_files[0]}")
+        return pdf_files[0]
+
+    return None
 
 
 def read_pdf_text(pdf_path: str) -> str:
@@ -151,7 +172,7 @@ def fix_key_numbers():
 
 def fix_evidence_index():
     """修复evidence_index.json"""
-    evidence_dir = Path("outputs/stage1/evidence/evidence")
+    evidence_dir = Path("outputs/stage1/evidence")
     complete_dir = Path("outputs_complete/原告起诉包")
 
     evidence_dir.mkdir(parents=True, exist_ok=True)
@@ -372,12 +393,14 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 使用示例:
-  python3 run_complete.py                           # 完整流程（生成+验证）
-  python3 run_complete.py --stage0                  # 仅Stage0
-  python3 run_complete.py --stage1                  # Stage0 + Stage1
-  python3 run_complete.py --verify                  # 仅验证
+  python3 run_complete.py                              # 完整流程（生成+验证）
+  python3 run_complete.py --stage0                     # 仅Stage0
+  python3 run_complete.py --stage1                     # Stage0 + Stage1
+  python3 run_complete.py --verify                     # 仅验证
+  python3 run_complete.py -f 判决书.pdf                # 使用指定判决书文件
+  python3 run_complete.py -f /path/to/judgment.pdf    # 使用绝对路径
   python3 run_complete.py --test-config='{"enabled": true, "errors": [{"target": "boundary_conditions.合同金额", "operation": "multiply", "value": 1.1}]}'
-                                                    # 带测试配置运行（错误注入）
+                                                      # 带测试配置运行（错误注入）
         """
     )
     parser.add_argument('--stage0', action='store_true', help='仅运行Stage0')
@@ -385,7 +408,24 @@ def main():
     parser.add_argument('--verify', action='store_true', help='仅验证')
     parser.add_argument('--no-verify', action='store_true', help='生成后不验证')
     parser.add_argument('--test-config', type=str, help='测试配置（JSON格式，用于错误注入）')
+    parser.add_argument('-f', '--file', type=str, default=None,
+                        help='指定判决书PDF文件路径（支持绝对路径或相对路径）')
     args = parser.parse_args()
+
+    # 确定判决书路径
+    if args.file:
+        if Path(args.file).is_absolute():
+            judgment_path = Path(args.file)
+        else:
+            judgment_path = Path.cwd() / args.file
+        logger.info(f"使用指定的判决书文件: {judgment_path}")
+    else:
+        judgment_path = find_default_judgment_pdf()
+        if judgment_path:
+            logger.info(f"使用默认判决书文件: {judgment_path}")
+        else:
+            logger.error("未找到判决书PDF文件，请使用 -f 参数指定")
+            return
 
     logger.remove()
     logger.add(sys.stdout, format="[{time:HH:mm:ss}] {level} {message}")
@@ -395,12 +435,12 @@ def main():
     logger.info("=" * 60)
 
     # 检查PDF文件
-    if not PDF_PATH.exists():
-        logger.error(f"判决书PDF不存在: {PDF_PATH}")
+    if not judgment_path.exists():
+        logger.error(f"判决书PDF不存在: {judgment_path}")
         return
 
     # 读取判决书
-    judgment_text = read_pdf_text(str(PDF_PATH))
+    judgment_text = read_pdf_text(str(judgment_path))
     if not judgment_text:
         logger.error("无法读取判决书")
         return
