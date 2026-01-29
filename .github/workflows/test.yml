@@ -84,14 +84,23 @@ jobs:
         run: |
           echo "=== Checking test results ==="
           
+          # Show working directory
+          echo ""
+          echo "Working directory: $(pwd)"
+          echo "GitHub workspace: $GITHUB_WORKSPACE"
+          
+          # Show all files
+          echo ""
+          echo "All files (ls -laR):"
+          ls -laR | head -200
+          
           # Display run_complete.log if exists
+          echo ""
+          echo "=== run_complete.log content (last 200 lines) ==="
           if [ -f run_complete.log ]; then
-            echo ""
-            echo "=== run_complete.log content (last 200 lines) ==="
             tail -200 run_complete.log
           else
-            echo ""
-            echo "=== run_complete.log NOT FOUND ==="
+            echo "run_complete.log NOT FOUND"
           fi
           
           # Get exit code
