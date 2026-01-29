@@ -65,6 +65,18 @@ jobs:
           python3 test_pdf_quality.py
           echo "=== Exit code: $? ==="
 
+      - name: Create test artifact
+        run: |
+          echo "Test artifact created at $(date)" > test_artifact.txt
+          ls -la test_artifact.txt
+
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifact
+          path: test_artifact.txt
+          retention-days: 1
+
       - name: Upload PDF artifact
         if: always()
         uses: actions/upload-artifact@v4
