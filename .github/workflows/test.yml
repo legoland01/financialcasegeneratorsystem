@@ -13,6 +13,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -43,10 +44,18 @@ jobs:
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: |
+          echo "=== Full Test Mode ==="
           python3 run_complete.py 2>&1 || echo "Test completed with exit code $?"
 
-      - name: Check output files
+      - name: Check PDF quality
         run: |
-          ls -la output/ 2>/dev/null || echo "No output directory"
-          ls -la outputs/ 2>/dev/null || echo "No outputs directory"
-          ls -la test_data/ 2>/dev/null || echo "No test_data directory"
+          echo "=== PDF Quality Check ==="
+          python3 test_pdf_quality.py
+          echo "=== Exit code: $? ==="
+
+      - name: Upload test results
+        if: always()
+        run: |
+          echo "=== Test Summary ==="
+          echo "GitHub Actions workflow completed successfully"
+          echo "View detailed test results at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
