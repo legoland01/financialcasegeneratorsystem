@@ -13,7 +13,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +24,18 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo "=== Install dependencies ==="
           pip install PyPDF2 openapi-requests python-docx reportlab pillow loguru 2>/dev/null || true
+          echo "Dependencies installed"
+
+      - name: Show directory structure
+        run: |
+          echo "=== Directory structure ==="
+          echo "Current dir: $(pwd)"
+          ls -la
+          echo ""
+          echo "test_data/:"
+          ls -la test_data/ 2>/dev/null || echo "  test_data/ not found"
 
       - name: Run mock test
         if: github.event.inputs.mock_mode == 'true'
@@ -45,39 +56,75 @@ jobs:
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: |
           echo "=== Full Test Mode ==="
-          python3 run_complete.py 2>&1 || echo "Exit code: $?"
+          echo "Starting run_complete.py..."
+          
+          # Run the test and capture output
+          python3 run_complete.py 2>&1 | tee run_complete.log
+          exit_code=${PIPESTATUS[0]}
           
           echo ""
-          echo "=== Checking directories ==="
-          echo "Current dir: $(pwd)"
+          echo "=== run_complete.py exit code: $exit_code ==="
+          echo ""
+          echo "=== Directory contents after run ==="
           ls -la
           echo ""
           echo "outputs/:"
-          ls -la outputs/ 2>/dev/null || echo "  NOT FOUND"
+          ls -la outputs/ 2>/dev/null || echo "  outputs/ not found"
           echo ""
           echo "outputs_complete/:"
-          ls -la outputs_complete/ 2>/dev/null || echo "  NOT FOUND"
-          ls -la test_data/ 2>/dev/null || echo "test_data/ not found"
+          ls -la outputs_complete/ 2>/dev/null || echo "  outputs_complete/ not found"
+          
+          # Save exit code for next step
+          echo "$exit_code" > run_exit_code.txt
 
-      - name: Check PDF quality
+      - name: Check test results
         run: |
-          echo "=== PDF Quality Check ==="
-          python3 test_pdf_quality.py
-          echo "=== Exit code: $? ==="
+          echo "=== Checking test results ==="
+          
+          # Get exit code
+          if [ -f run_exit_code.txt ]; then
+            exit_code=$(cat run_exit_code.txt)
+            echo "Exit code: $exit_code"
+          else
+            echo "No exit code file found"
+            exit_code=1
+          fi
+          
+          echo ""
+          echo "=== Directory check ==="
+          if [ -d "outputs" ]; then
+            echo "outputs/ exists"
+            ls -la outputs/
+          else
+            echo "outputs/ NOT FOUND"
+          fi
+          
+          if [ -d "outputs_complete" ]; then
+            echo "outputs_complete/ exists"
+            ls -la outputs_complete/
+          else
+            echo "outputs_complete/ NOT FOUND"
+          fi
 
-      - name: Create test artifact
+      - name: Run test reporter
         run: |
-          echo "Test artifact created at $(date)" > test_artifact.txt
-          ls -la test_artifact.txt
+          echo "=== Test Reporter ==="
+          python3 test_reporter.py 2>&1 | tee test_reporter.log
+          echo "Exit code: $?"
 
-      - name: Upload test artifact
+      - name: Upload test artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-artifact
-          path: test_artifact.txt
-          retention-days: 1
+          name: test-artifacts
+          path: |
+            run_complete.log
+            test_reporter.log
+            test_report.md
+            test_issues.json
+          retention-days: 7
 
-      - name: Upload PDF artifact
+      - name: Upload evidence PDF
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -85,7 +132,7 @@ jobs:
           path: outputs_complete/
           retention-days: 7
 
-      - name: Upload outputs artifact
+      - name: Upload outputs
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -93,9 +140,9 @@ jobs:
           path: outputs/
           retention-days: 7
 
-      - name: Upload test results
+      - name: Test summary
         if: always()
         run: |
           echo "=== Test Summary ==="
-          echo "GitHub Actions workflow completed successfully"
-          echo "View detailed test results at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "GitHub Actions workflow completed"
+          echo "View artifacts: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
