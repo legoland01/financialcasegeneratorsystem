@@ -84,9 +84,20 @@ jobs:
         run: |
           echo "=== Checking test results ==="
           
+          # Display run_complete.log if exists
+          if [ -f run_complete.log ]; then
+            echo ""
+            echo "=== run_complete.log content ==="
+            cat run_complete.log | tail -100
+          else
+            echo ""
+            echo "=== run_complete.log NOT FOUND ==="
+          fi
+          
           # Get exit code
           if [ -f run_exit_code.txt ]; then
             exit_code=$(cat run_exit_code.txt)
+            echo ""
             echo "Exit code: $exit_code"
           else
             echo "No exit code file found"
