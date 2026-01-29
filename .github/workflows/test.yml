@@ -45,11 +45,18 @@ jobs:
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: |
           echo "=== Full Test Mode ==="
-          python3 run_complete.py 2>&1 || echo "Test completed with exit code: $?"
+          python3 run_complete.py 2>&1 || echo "Exit code: $?"
           
-          echo "=== Checking outputs directories ==="
-          ls -la outputs/ 2>/dev/null || echo "outputs/ not found"
-          ls -la outputs_complete/ 2>/dev/null || echo "outputs_complete/ not found"
+          echo ""
+          echo "=== Checking directories ==="
+          echo "Current dir: $(pwd)"
+          ls -la
+          echo ""
+          echo "outputs/:"
+          ls -la outputs/ 2>/dev/null || echo "  NOT FOUND"
+          echo ""
+          echo "outputs_complete/:"
+          ls -la outputs_complete/ 2>/dev/null || echo "  NOT FOUND"
           ls -la test_data/ 2>/dev/null || echo "test_data/ not found"
 
       - name: Check PDF quality
