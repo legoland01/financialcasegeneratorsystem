@@ -41,19 +41,26 @@ OPENAI_MODEL = "deepseek-ai/DeepSeek-V3.2"
 
 def find_default_judgment_pdf() -> Optional[Path]:
     """在默认目录中查找判决书PDF文件"""
-    default_dir = Path("/Users/liuzhen/Documents/河广/Product Development/chatGPT/Digital Law/Digital court/金融法院/法官数字助手/案卷材料样例/融资租赁/(2024)沪74民初721号/OpenCode Trial/测试用判决书")
+    # 默认在项目 test_data 目录查找
+    project_root = Path(__file__).parent
+    default_dir = project_root / "test_data"
 
     if not default_dir.exists():
         return None
 
-    pdf_files = list(default_dir.glob("*.pdf"))
-    if len(pdf_files) == 1:
+    pdf_files = sorted(default_dir.glob("*.pdf"))
+    if len(pdf_files) == 0:
+        logger.warning("test_data 目录中没有 PDF 文件")
+        return None
+    elif len(pdf_files) == 1:
         return pdf_files[0]
-    elif len(pdf_files) > 1:
-        logger.warning(f"默认目录中存在多个PDF文件，使用第一个: {pdf_files[0]}")
+    else:
+        # 使用文件名中包含"判决书"的第一个文件，或第一个
+        for pdf in pdf_files:
+            if "判决书" in pdf.name:
+                return pdf
+        logger.warning(f"使用第一个 PDF 文件: {pdf_files[0]}")
         return pdf_files[0]
-
-    return None
 
 
 def read_pdf_text(pdf_path: str) -> str:
