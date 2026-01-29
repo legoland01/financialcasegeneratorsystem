@@ -12,6 +12,12 @@ OUTPUTS_DIR = Path("outputs")
 OUTPUTS_COMPLETE_DIR = Path("outputs_complete")
 TEST_DATA_DIR = Path("test_data")
 
+# 确保路径存在
+if not OUTPUTS_DIR.exists():
+    OUTPUTS_DIR = Path.home() / "outputs"
+if not OUTPUTS_COMPLETE_DIR.exists():
+    OUTPUTS_COMPLETE_DIR = Path.home() / "outputs_complete"
+
 def check_pdf_exists():
     """检查PDF文件是否存在"""
     print("\n" + "=" * 60)
@@ -41,11 +47,16 @@ def check_stage0_outputs():
     print("2. Stage 0 产物检查")
     print("=" * 60)
     
+    print(f"Checking directory: {OUTPUTS_DIR.absolute()}")
+    print(f"Directory exists: {OUTPUTS_DIR.exists()}")
+    
     if not OUTPUTS_DIR.exists():
-        print("⚠️ outputs/ 目录不存在 (需要先运行: python3 run_complete.py)")
+        print("⚠️ outputs/ 目录不存在")
         return None  # 跳过，不算失败
     
     stage0_dir = OUTPUTS_DIR / "stage0"
+    print(f"Checking stage0 dir: {stage0_dir}")
+    print(f"stage0 dir exists: {stage0_dir.exists()}")
     required_files = [
         "0.1_structured_extraction.json",
         "0.2_anonymization_plan.json", 
