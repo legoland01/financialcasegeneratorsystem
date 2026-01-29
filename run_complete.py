@@ -485,6 +485,13 @@ def main():
     # 修复数据
     fix_key_numbers()
     fix_evidence_index()
+    
+    # 确保 outputs_complete 目录存在
+    complete_dir = Path("outputs_complete")
+    complete_dir.mkdir(parents=True, exist_ok=True)
+    (complete_dir / "原告起诉包").mkdir(parents=True, exist_ok=True)
+    (complete_dir / "法院审理包" / "程序性文件").mkdir(parents=True, exist_ok=True)
+    logger.info(f"已确保目录存在: {complete_dir}")
 
     # 生成PDF - 默认运行（除非指定 --stage0）
     if not args.stage0:
