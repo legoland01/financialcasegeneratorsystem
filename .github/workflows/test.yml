@@ -87,8 +87,8 @@ jobs:
           # Display run_complete.log if exists
           if [ -f run_complete.log ]; then
             echo ""
-            echo "=== run_complete.log content ==="
-            cat run_complete.log | tail -100
+            echo "=== run_complete.log content (last 200 lines) ==="
+            tail -200 run_complete.log
           else
             echo ""
             echo "=== run_complete.log NOT FOUND ==="
