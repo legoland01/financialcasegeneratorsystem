@@ -33,18 +33,7 @@ jobs:
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: |
           echo "=== Mock Mode Test ==="
-          python3 -c "
-import sys; sys.path.insert(0, '.');
-from run_complete import find_default_judgment_pdf;
-import run_complete;
-r = find_default_judgment_pdf();
-print('PDF:', r);
-print('Exists:', r.exists() if r else False);
-print('run_stage0:', hasattr(run_complete, 'run_stage0'));
-print('run_stage1:', hasattr(run_complete, 'run_stage1'));
-print('read_pdf_text:', hasattr(run_complete, 'read_pdf_text'));
-print('All OK!');
-"
+          python3 test_mock.py
           echo "=== Exit code: $? ==="
 
       - name: Run full test
