@@ -53,6 +53,22 @@ jobs:
           python3 test_pdf_quality.py
           echo "=== Exit code: $? ==="
 
+      - name: Upload PDF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-pdf
+          path: outputs_complete/
+          retention-days: 7
+
+      - name: Upload outputs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: outputs
+          path: outputs/
+          retention-days: 7
+
       - name: Upload test results
         if: always()
         run: |
