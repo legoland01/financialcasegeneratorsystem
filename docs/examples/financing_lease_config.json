@@ -1,0 +1,139 @@
+{
+  "case_type": "融资租赁纠纷",
+  "case_type_code": "FL",
+  "version": "1.0",
+  "description": "融资租赁合同纠纷案件配置（示例）",
+  
+  "evidence_templates": [
+    {
+      "template_id": "transfer_contract",
+      "template_name": "设备转让协议",
+      "description": "融资租赁合同中的设备转让协议",
+      "required_clauses": [
+        "definition",
+        "transfer_subject",
+        "transfer_price",
+        "payment",
+        "ownership_transfer",
+        "representations",
+        "tax",
+        "breach",
+        "termination",
+        "dispute_resolution"
+      ],
+      "field_mappings": {
+        "transfer_price": "key_numbers.transfer_price",
+        "equipment_list": "key_numbers.equipment_list",
+        "payment_account": "data.payment_account"
+      },
+      "calculation_rules": {
+        "price_calculation": "simple"
+      }
+    },
+    {
+      "template_id": "lease_contract",
+      "template_name": "融资租赁合同",
+      "description": "售后回租融资租赁合同",
+      "required_clauses": [
+        "definition",
+        "lease_subject",
+        "lease_term",
+        "rent",
+        "deposit",
+        "delivery",
+        "insurance",
+        "maintenance",
+        "breach",
+        "dispute_resolution"
+      ],
+      "field_mappings": {
+        "rent_total": "key_numbers.rent_total",
+        "interest_rate": "key_numbers.interest_rate",
+        "rent_schedule": "key_numbers.rent_schedule",
+        "deposit": "key_numbers.deposit"
+      },
+      "calculation_rules": {
+        "rent_calculation": "equal_installment",
+        "frequency": "monthly"
+      }
+    }
+  ],
+  
+  "clause_library": {
+    "definition": {
+      "name": "定义与解释",
+      "content": "本协议中，除非上下文另有要求，下列术语具有以下含义：\n1.1 \"租赁物\"指本合同附件一所列的设备及附属设施。\n1.2 \"转让价款\"指受让租赁物所有权的总价款。\n1.3 \"租金\"指承租人应按本合同约定支付的款项。"
+    },
+    "transfer_subject": {
+      "name": "转让标的",
+      "content": "双方确认，转让标的为附件一所列设备。"
+    },
+    "transfer_price": {
+      "name": "转让价款",
+      "content": "双方确认，本次转让价款为人民币{{transfer_price}}元。"
+    },
+    "rent": {
+      "name": "租金及支付",
+      "content": "本合同项下租金总额为人民币{{rent_total}}元，租赁利率为{{interest_rate}}%/年。"
+    }
+  },
+  
+  "calculation_rules": {
+    "rent_calculation": {
+      "method": "equal_installment",
+      "frequencies": ["monthly", "quarterly", "semi_annual", "annual"],
+      "default_frequency": "monthly",
+      "default_periods": 12
+    },
+    "interest_calculation": {
+      "method": "daily_rate",
+      "rate_types": ["annual", "monthly"],
+      "default_rate_type": "annual"
+    }
+  },
+  
+  "anonymization_rules": {
+    "company_patterns": [
+      "某某公司\\d*",
+      "长江某.*",
+      "华鑫某.*"
+    ],
+    "person_patterns": [
+      "张某\\d*",
+      "李某某"
+    ],
+    "address_patterns": [
+      "某某省.*市.*区.*路.*号"
+    ],
+    "bank_patterns": [
+      "某某银行.*支行"
+    ]
+  },
+  
+  "output_format": {
+    "pdf": {
+      "page_size": "A4",
+      "margins": {
+        "top": 2.5,
+        "bottom": 2.5,
+        "left": 3.0,
+        "right": 3.0
+      },
+      "fonts": {
+        "body": "SimSun",
+        "heading": "SimHei"
+      }
+    }
+  },
+  
+  "validation_rules": {
+    "required_fields": [
+      "contract_number",
+      "transfer_price",
+      "rent_total"
+    ],
+    "clause_completeness": true,
+    "amount_consistency": true,
+    "date_consistency": true
+  }
+}

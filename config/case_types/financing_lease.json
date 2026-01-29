@@ -1,0 +1,73 @@
+{
+  "case_type": "financing_lease",
+  "case_type_name": "融资租赁合同纠纷",
+  "description": "融资租赁合同纠纷案件配置",
+  "evidence_templates": [
+    {
+      "template_id": "transfer_contract",
+      "template_name": "设备转让协议",
+      "required_clauses": [
+        "定义与解释",
+        "转让标的",
+        "价款支付",
+        "权利义务",
+        "违约责任",
+        "争议解决"
+      ],
+      "field_mappings": {
+        "transfer_price": "key_numbers.contract_amount",
+        "transferor": "anonymization_map.某某公司5",
+        "transferee": "anonymization_map.某某公司1"
+      }
+    },
+    {
+      "template_id": "lease_contract",
+      "template_name": "融资租赁合同",
+      "required_clauses": [
+        "定义与解释",
+        "租赁物",
+        "租赁期限",
+        "租金及支付",
+        "保证金",
+        "交付与验收",
+        "保险",
+        "维修保养",
+        "违约责任",
+        "争议解决"
+      ],
+      "field_mappings": {
+        "rent_total": "key_numbers.rent_total",
+        "rent_schedule": "key_numbers.rent_schedule",
+        "interest_rate": "key_numbers.interest_rate"
+      }
+    }
+  ],
+  "calculation_rules": {
+    "rent_calculation": {
+      "method": "equal_installment",
+      "frequency": "monthly",
+      "default_periods": 12
+    },
+    "interest_calculation": {
+      "method": "daily_rate",
+      "default_rate_type": "annual"
+    }
+  },
+  "anonymization_rules": {
+    "company_patterns": ["某某公司\\d+", "长江某.*", "华鑫某.*"],
+    "person_patterns": ["张某\\d*", "李某某"],
+    "address_patterns": ["某某省.*市.*区.*路.*号"]
+  },
+  "output_structure": {
+    "cover_page": {
+      "enabled": true,
+      "title": "案件卷宗"
+    },
+    "table_of_contents": {
+      "enabled": true,
+      "show_page_number": true
+    },
+    "evidence_page_break": true,
+    "page_number_format": "第{page}页"
+  }
+}

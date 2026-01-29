@@ -1,0 +1,109 @@
+name: 金融案件证据集生成系统 - 自动测试
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  # 手动触发测试
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      # 步骤1: 克隆代码
+      - name: 克隆代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # 步骤2: 设置Python环境
+      - name: 设置Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      # 步骤3: 安装依赖
+      - name: 安装Python依赖
+        run: |
+          pip install --upgrade pip
+          pip install loguru PyPDF2 reportlab
+
+      # 步骤4: 运行测试（完整流程）
+      - name: 运行完整测试
+        run: |
+          cd /Users/liuzhen/Documents/河广/Product Development/chatGPT/Digital Law/Digital court/金融法院/法官数字助手/案卷材料样例/融资租赁/(2024)沪74民初721号/OpenCode Trial/financial_case_generator_system
+          python3 run_complete.py --all 2>&1 | tee test_run.log
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+
+      # 步骤5: 生成测试报告
+      - name: 生成测试报告
+        id: generate_report
+        run: |
+          cd /Users/liuzhen/Documents/河广/Product Development/chatGPT/Digital Law/Digital court/金融法院/法官数字助手/案卷材料样例/融资租赁/(2024)沪74民初721号/OpenCode Trial/financial_case_generator_system
+          
+          TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+          REPORT_NAME="docs/测试报告_TR-${TIMESTAMP}.md"
+          
+          # 生成报告
+          cat > "$REPORT_NAME" << 'EOF'
+# 金融案件证据集生成系统 v2.0 - 测试报告
+
+**测试时间**: TIMESTAMP_PLACEHOLDER
+**测试命令**: python3 run_complete.py --all
+
+EOF
+          
+          sed -i '' "s/TIMESTAMP_PLACEHOLDER/$(date)/" "$REPORT_NAME"
+          
+          # 添加测试结果摘要
+          echo "" >> "$REPORT_NAME"
+          echo "## 测试结果摘要" >> "$REPORT_NAME"
+          echo "" >> "$REPORT_NAME"
+          
+          if grep -q "ERROR" test_run.log 2>/dev/null; then
+            echo "**状态**: ❌ 存在错误" >> "$REPORT_NAME"
+          else
+            echo "**状态**: ✅ 测试完成" >> "$REPORT_NAME"
+          fi
+          
+          echo "" >> "$REPORT_NAME"
+          echo "## 生成文件" >> "$REPORT_NAME"
+          echo "" >> "$REPORT_NAME"
+          echo '```' >> "$REPORT_NAME"
+          find outputs -type f 2>/dev/null | head -30 >> "$REPORT_NAME"
+          echo '```' >> "$REPORT_NAME"
+          
+          echo "REPORT_NAME=$REPORT_NAME" >> $GITHUB_OUTPUT
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT
+
+      # 步骤6: 上传测试报告
+      - name: 上传测试报告
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: |
+            docs/测试报告_*.md
+            test_run.log
+          retention-days: 30
+
+      # 步骤7: 通知（通过Gitee内置功能）
+      - name: 输出结果
+        run: |
+          echo "========== 测试完成 =========="
+          echo "测试报告: ${{ steps.generate_report.outputs.REPORT_NAME }}"
+          echo "时间戳: ${{ steps.generate_report.outputs.TIMESTAMP }}"
+          
+          # 检查是否成功
+          if grep -q "ERROR" test_run.log 2>/dev/null; then
+            echo "⚠️ 存在错误，请查看详细报告"
+          else
+            echo "✅ 测试完成"
+          fi

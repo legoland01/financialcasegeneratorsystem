@@ -1,0 +1,114 @@
+{
+  "case_type": "银行借贷纠纷",
+  "case_type_code": "BL",
+  "version": "1.0",
+  "description": "银行金融借款合同纠纷案件配置（示例）",
+  
+  "evidence_templates": [
+    {
+      "template_id": "loan_contract",
+      "template_name": "借款合同",
+      "description": "银行与借款人之间的贷款合同",
+      "required_clauses": [
+        "definition",
+        "loan_amount",
+        "interest_rate",
+        "loan_term",
+        "repayment",
+        "guarantee",
+        "breach",
+        "dispute_resolution"
+      ],
+      "field_mappings": {
+        "loan_amount": "key_numbers.loan_amount",
+        "interest_rate": "key_numbers.interest_rate",
+        "loan_term": "key_numbers.loan_term",
+        "repayment_schedule": "key_numbers.repayment_schedule",
+        "guarantor": "data.guarantor_info"
+      },
+      "calculation_rules": {
+        "interest_calculation": "compound",
+        "repayment_calculation": "equal_payment"
+      }
+    },
+    {
+      "template_id": "guarantee_contract",
+      "template_name": "保证合同",
+      "description": "担保人为借款合同提供的保证担保合同",
+      "required_clauses": [
+        "definition",
+        "guarantee_scope",
+        "guarantee_period",
+        "liability",
+        "dispute_resolution"
+      ],
+      "field_mappings": {
+        "guarantee_amount": "key_numbers.guarantee_amount",
+        "principal_debtor": "data.principal_debtor"
+      }
+    }
+  ],
+  
+  "clause_library": {
+    "definition": {
+      "name": "定义与解释",
+      "content": "本合同中，下列术语具有以下含义：\n1.1 \"贷款人\"指提供贷款的银行。\n1.2 \"借款人\"指从银行贷款的企业或个人。\n1.3 \"贷款金额\"指贷款人向借款人提供的本金。"
+    },
+    "loan_amount": {
+      "name": "贷款金额",
+      "content": "贷款人同意向借款人提供贷款本金为人民币{{loan_amount}}元。"
+    },
+    "interest_rate": {
+      "name": "贷款利率",
+      "content": "本合同项下贷款利率为{{interest_rate}}%/年。"
+    },
+    "repayment": {
+      "name": "还款方式",
+      "content": "借款人应按本合同约定的还款计划按时足额偿还贷款本息。"
+    }
+  },
+  
+  "calculation_rules": {
+    "interest_calculation": {
+      "method": "compound_daily",
+      "rate_types": ["annual", "monthly"],
+      "default_rate_type": "annual",
+      "default_rate": 4.35
+    },
+    "repayment_calculation": {
+      "method": "equal_payment",  // 等额本息
+      "methods_available": [
+        "equal_principal",        // 等额本金
+        "interest_first",         // 先息后本
+        "bullet_repayment"        // 到期一次性还本
+      ]
+    }
+  },
+  
+  "anonymization_rules": {
+    "company_patterns": [
+      "某某银行\\d*",
+      "某某公司\\d*",
+      "长江某.*"
+    ],
+    "person_patterns": [
+      "张某\\d*",
+      "李某某"
+    ],
+    "address_patterns": [
+      "某某省.*市.*区.*路.*号"
+    ]
+  },
+  
+  "validation_rules": {
+    "required_fields": [
+      "contract_number",
+      "loan_amount",
+      "interest_rate",
+      "loan_term"
+    ],
+    "clause_completeness": true,
+    "amount_consistency": true,
+    "date_consistency": true
+  }
+}

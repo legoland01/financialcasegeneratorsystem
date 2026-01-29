@@ -1,0 +1,10 @@
+{
+  "contract_amount": 150000000.0,
+  "interest_rate": 0.061,
+  "signing_date": "2021-02-24",
+  "equipment_count": 62,
+  "data_source": "正则表达式提取",
+  "lessor_marker": null,
+  "lessee_marker": null,
+  "guarantor_marker": null
+}

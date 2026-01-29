@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stage 0 Output Schema",
+  "description": "阶段0输出的数据结构定义",
+  "type": "object",
+  "properties": {
+    "案件基本信息": {
+      "type": "object",
+      "properties": {
+        "案号": {"type": "string"},
+        "法院": {"type": "string"},
+        "案由": {"type": "string"},
+        "程序": {"type": "string"},
+        "立案日期": {"type": "string", "format": "date"},
+        "开庭日期": {"type": "string", "format": "date"},
+        "判决日期": {"type": "string", "format": "date"},
+        "合议庭": {
+          "type": "object",
+          "properties": {
+            "审判长": {"type": "string"},
+            "审判员": {"type": "array", "items": {"type": "string"}},
+            "人民陪审员": {"type": "string"},
+            "法官助理": {"type": "string"},
+            "书记员": {"type": "string"}
+          }
+        }
+      }
+    },
+    "原告信息": {
+      "type": "object",
+      "properties": {
+        "原始名称": {"type": "string"},
+        "替换名称": {"type": "string"},
+        "住所": {"type": "string"},
+        "法定代表人": {"type": "string"},
+        "委托代理人": {"type": "string"}
+      }
+    },
+    "被告信息": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "被告序号": {"type": "string"},
+          "原始名称": {"type": "string"},
+          "替换名称": {"type": "string"},
+          "类型": {"type": "string", "enum": ["公司", "自然人"]},
+          "住所": {"type": "string"},
+          "法定代表人": {"type": "string"},
+          "委托代理人": {"type": "string"},
+          "身份证号": {"type": "string"},
+          "出生日期": {"type": "string", "format": "date"}
+        }
+      }
+    },
+    "原告诉讼请求": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "被告抗辩意见": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "被告": {"type": "string"},
+          "抗辩要点": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "法院认定部分": {
+      "type": "object",
+      "properties": {
+        "事实认定": {"type": "array", "items": {"type": "string"}},
+        "证据采信情况": {"type": "array", "items": {"type": "object"}},
+        "法律分析": {"type": "array", "items": {"type": "string"}},
+        "判决主文": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

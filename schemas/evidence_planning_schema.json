@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "evidence_planning_schema",
+  "title": "证据归属规划表Schema",
+  "description": "定义证据归属规划表的数据结构,用于指导阶段1-3生成原告和被告证据包",
+  "type": "object",
+  "required": [
+    "证据归属规划表",
+    "证据分组"
+  ],
+  "properties": {
+    "证据归属规划表": {
+      "type": "array",
+      "description": "所有证据的详细归属规划",
+      "items": {
+        "type": "object",
+        "required": [
+          "证据序号",
+          "证据名称",
+          "应归属方",
+          "文件类型",
+          "是否需要生成"
+        ],
+        "properties": {
+          "证据序号": {
+            "type": "integer",
+            "description": "证据的唯一序号,从1开始"
+          },
+          "证据名称": {
+            "type": "string",
+            "description": "证据的名称,与判决书中保持一致"
+          },
+          "应归属方": {
+            "type": "string",
+            "enum": ["原告", "被告", "双方", "法院调取"],
+            "description": "证据应该由哪方提交"
+          },
+          "文件类型": {
+            "type": "string",
+            "enum": ["合同", "凭证", "登记", "文书", "表格", "其他"],
+            "description": "证据文件的类型"
+          },
+          "是否需要生成": {
+            "type": "boolean",
+            "description": "是否需要生成该证据文件"
+          },
+          "关键数据提示": {
+            "type": "object",
+            "description": "生成该证据时需要用到的关键数据",
+            "properties": {
+              "涉及金额": {
+                "type": "object",
+                "properties": {
+                  "数值": {
+                    "type": "number"
+                  },
+                  "单位": {
+                    "type": "string"
+                  }
+                }
+              },
+              "涉及日期": {
+                "type": "string",
+                "description": "日期格式为YYYY-MM-DD"
+              },
+              "涉及方": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "涉及的各方名称,引用Profile库"
+              },
+              "其他": {
+                "type": "string",
+                "description": "其他关键提示信息"
+              }
+            }
+          },
+          "关联交易节点": {
+            "type": "integer",
+            "description": "关联交易时间线的序号"
+          },
+          "证据组": {
+            "type": "integer",
+            "description": "同一组证据的编号"
+          },
+          "证明目的": {
+            "type": "string",
+            "description": "该证据要证明什么事实"
+          }
+        }
+      }
+    },
+    "证据分组": {
+      "type": "object",
+      "description": "证据的分组信息",
+      "patternProperties": {
+        "^证据组_\\d+$": {
+          "type": "object",
+          "required": [
+            "组名称",
+            "归属方",
+            "证据数量",
+            "证明目的"
+          ],
+          "properties": {
+            "组名称": {
+              "type": "string",
+              "description": "证据组的名称"
+            },
+            "归属方": {
+              "type": "string",
+              "enum": ["原告", "被告"],
+              "description": "证据组归属方"
+            },
+            "证据数量": {
+              "type": "integer",
+              "description": "该组包含的证据数量"
+            },
+            "证明目的": {
+              "type": "string",
+              "description": "该组证据的证明目的"
+            }
+          }
+        }
+      }
+    }
+  },
+  "example": {
+    "证据归属规划表": [
+      {
+        "证据序号": 1,
+        "证据名称": "融资租赁合同",
+        "应归属方": "双方",
+        "文件类型": "合同",
+        "是否需要生成": true,
+        "关键数据提示": {
+          "涉及金额": {
+            "数值": 5000000,
+            "单位": "元"
+          },
+          "涉及日期": "2023-01-15",
+          "涉及方": [
+            "上海XX融资租赁有限公司",
+            "浙江XX机械制造有限公司"
+          ]
+        },
+        "关联交易节点": 1,
+        "证据组": 1,
+        "证明目的": "证明双方存在融资租赁合同关系"
+      },
+      {
+        "证据序号": 2,
+        "证据名称": "设备清单",
+        "应归属方": "原告",
+        "文件类型": "表格",
+        "是否需要生成": true,
+        "关键数据提示": {
+          "涉及方": [
+            "上海XX融资租赁有限公司",
+            "浙江XX机械制造有限公司"
+          ]
+        },
+        "关联交易节点": 2,
+        "证据组": 1,
+        "证明目的": "证明租赁物的具体内容"
+      }
+    ],
+    "证据分组": {
+      "证据组_1": {
+        "组名称": "融资租赁合同及附件",
+        "归属方": "原告",
+        "证据数量": 5,
+        "证明目的": "证明双方存在融资租赁合同关系及租赁物情况"
+      }
+    }
+  }
+}

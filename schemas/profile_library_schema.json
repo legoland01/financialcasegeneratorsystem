@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Profile Library Schema",
+  "description": "Profile库数据结构定义",
+  "type": "object",
+  "properties": {
+    "人物Profile库": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "替换名称": {"type": "string"},
+            "身份": {"type": "string"},
+            "性别": {"type": "string", "enum": ["男", "女"]},
+            "出生日期": {"type": "string", "format": "date"},
+            "身份证号": {"type": "string", "pattern": "^\\d{17}[\\dXx]$"},
+            "住址": {"type": "string"},
+            "职务": {"type": "string"},
+            "执业证号": {"type": "string"},
+            "律所": {"type": "string"},
+            "执业年限": {"type": "integer"}
+          },
+          "required": ["替换名称", "身份"]
+        }
+      }
+    },
+    "公司Profile库": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "替换名称": {"type": "string"},
+            "统一社会信用代码": {
+              "type": "string",
+              "pattern": "^\\d{18}$"
+            },
+            "类型": {"type": "string"},
+            "注册资本": {"type": "number"},
+            "成立日期": {"type": "string", "format": "date"},
+            "住所": {"type": "string"},
+            "法定代表人": {"type": "string"},
+            "经营范围": {"type": "string"}
+          },
+          "required": ["替换名称", "统一社会信用代码"]
+        }
+      }
+    },
+    "机构Profile库": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "替换名称": {"type": "string"},
+            "地址": {"type": "string"},
+            "职能": {"type": "string"}
+          },
+          "required": ["替换名称"]
+        }
+      }
+    },
+    "编号体系规则": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "格式": {"type": "string"},
+            "示例": {"type": "string"},
+            "用途": {"type": "string"}
+          }
+        }
+      }
+    },
+    "补充Profile库": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "名称": {"type": "string"},
+            "统一社会信用代码": {"type": "string"},
+            "住所": {"type": "string"},
+            "主营业务": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+}
