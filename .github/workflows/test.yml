@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       mock_mode:
-        description: 'Use mock data only (no real API calls)'
+        description: 'Run mock test only (no real API calls)'
         required: false
         default: 'false'
 
@@ -37,7 +37,7 @@ jobs:
           echo "=== Exit code: $? ==="
 
       - name: Run full test
-        if: github.event.inputs.mock_mode == 'false'
+        if: github.event.inputs.mock_mode != 'true'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
@@ -49,3 +49,4 @@ jobs:
         run: |
           ls -la output/ 2>/dev/null || echo "No output directory"
           ls -la outputs/ 2>/dev/null || echo "No outputs directory"
+          ls -la test_data/ 2>/dev/null || echo "No test_data directory"
