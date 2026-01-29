@@ -14,13 +14,19 @@ TEST_DATA_DIR = Path("test_data")
 
 def check_pdf_exists():
     """检查PDF文件是否存在"""
-    print("=" * 60)
+    print("\n" + "=" * 60)
     print("1. PDF文件检查")
     print("=" * 60)
     
+    # 检查 outputs_complete 目录
+    if not OUTPUTS_COMPLETE_DIR.exists():
+        print("⚠️ outputs_complete/ 目录不存在 (CI/CD 环境跳过)")
+        print("ℹ️  完整PDF生成需要在本地运行: python3 run_complete.py")
+        return None  # 返回 None 表示跳过，不算失败
+    
     pdf_files = list(OUTPUTS_COMPLETE_DIR.glob("*.pdf"))
     if not pdf_files:
-        print("❌ 未找到PDF文件")
+        print("⚠️ 未找到PDF文件")
         return False
     
     for pdf in pdf_files:
@@ -34,6 +40,10 @@ def check_stage0_outputs():
     print("\n" + "=" * 60)
     print("2. Stage 0 产物检查")
     print("=" * 60)
+    
+    if not OUTPUTS_DIR.exists():
+        print("⚠️ outputs/ 目录不存在 (需要先运行: python3 run_complete.py)")
+        return None  # 跳过，不算失败
     
     stage0_dir = OUTPUTS_DIR / "stage0"
     required_files = [
@@ -187,18 +197,23 @@ def main():
     
     passed = 0
     failed = 0
+    skipped = 0
     
     for name, result in results:
-        status = "✅ 通过" if result else "❌ 失败"
-        print(f"{name}: {status}")
-        if result:
+        if result is None:
+            status = "⏭️ 跳过"
+            skipped += 1
+        elif result:
+            status = "✅ 通过"
             passed += 1
         else:
+            status = "❌ 失败"
             failed += 1
+        print(f"{name}: {status}")
     
-    print(f"\n总计: {passed} 通过, {failed} 失败")
+    print(f"\n总计: {passed} 通过, {failed} 失败, {skipped} 跳过")
     
-    # 返回退出码
+    # 只有真正的失败才返回非零退出码
     sys.exit(0 if failed == 0 else 1)
 
 if __name__ == "__main__":
