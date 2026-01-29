@@ -271,8 +271,11 @@ def main():
             "timestamp": datetime.now().isoformat(),
             "issues": reporter.issues
         }
-        issues_path.write_text(json.dumps(issues_data, ensure_ascii=False, indent=2), encoding='utf-8')
-        print(f"问题清单已保存到: {issues_path}")
+        try:
+            issues_path.write_text(json.dumps(issues_data, ensure_ascii=False, indent=2), encoding='utf-8')
+            print(f"问题清单已保存到: {issues_path}")
+        except Exception as e:
+            print(f"保存问题清单失败: {e}")
     
     # 返回退出码
     if any(issue['type'] == 'critical' for issue in reporter.issues):
