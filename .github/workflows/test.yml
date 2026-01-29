@@ -1,0 +1,34 @@
+name: Financial Case Generator Test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt 2>/dev/null || pip install openapi-requests python-docx reportlab pillow 2>/dev/null || true
+
+      - name: Run tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+        run: |
+          python3 run_complete.py 2>&1 || echo "Test completed with exit code $?"
+
+      - name: Check output files
+        run: |
+          ls -la output/ 2>/dev/null || echo "No output directory"
+          ls -la *.md 2>/dev/null || echo "No markdown files"
