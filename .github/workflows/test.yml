@@ -36,6 +36,9 @@ jobs:
           echo ""
           echo "test_data/:"
           ls -la test_data/ 2>/dev/null || echo "  test_data/ not found"
+          echo ""
+          echo "Files in test_data/:"
+          find test_data/ -type f 2>/dev/null || echo "  No files"
 
       - name: Run mock test
         if: github.event.inputs.mock_mode == 'true'
