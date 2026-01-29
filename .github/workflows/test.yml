@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt 2>/dev/null || pip install openapi-requests python-docx reportlab pillow 2>/dev/null || true
+          pip install PyPDF2 openapi-requests python-docx reportlab pillow loguru 2>/dev/null || true
 
       - name: Run mock test
         if: github.event.inputs.mock_mode == 'true'
