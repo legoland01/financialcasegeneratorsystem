@@ -107,21 +107,9 @@ jobs:
           echo ""
           echo "=== Directory check ==="
           echo "Current working directory: $(pwd)"
-          
-          if [ -d "outputs" ]; then
-            echo "✓ outputs/ exists"
-            ls -la outputs/
-          else
-            echo "✗ outputs/ NOT FOUND"
-          fi
-          
           echo ""
-          if [ -d "outputs_complete" ]; then
-            echo "✓ outputs_complete/ exists"
-            ls -la outputs_complete/
-          else
-            echo "✗ outputs_complete/ NOT FOUND"
-          fi
+          echo "All directories and files:"
+          ls -laR | head -100
           
           echo ""
           echo "=== Checking for PDF files ==="
