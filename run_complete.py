@@ -441,6 +441,13 @@ def main():
     logger.info("金融案件测试数据生成系统 v2.0.1")
     logger.info("=" * 60)
 
+    # 预先创建输出目录
+    complete_dir = Path("outputs_complete")
+    complete_dir.mkdir(parents=True, exist_ok=True)
+    (complete_dir / "原告起诉包").mkdir(parents=True, exist_ok=True)
+    (complete_dir / "法院审理包" / "程序性文件").mkdir(parents=True, exist_ok=True)
+    logger.info(f"输出目录已创建: {complete_dir}")
+
     # 检查PDF文件
     if not judgment_path.exists():
         logger.error(f"判决书PDF不存在: {judgment_path}")
