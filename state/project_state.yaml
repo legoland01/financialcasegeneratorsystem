@@ -26,10 +26,10 @@ design:
   dev_signoff: false
 test:
   version: v1
-  status: in_progress
+  status: passed
   blackbox_cases: 22
   whitebox_passed: 22
-  blackbox_passed: 11
+  blackbox_passed: 22
   pm_signoff: true
   dev_signoff: true
   agent1_signoff: true
