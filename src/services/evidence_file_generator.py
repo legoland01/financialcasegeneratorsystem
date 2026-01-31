@@ -1,5 +1,5 @@
 """证据文件生成器 - 生成每个证据的独立文件"""
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Callable
 from pathlib import Path
 from loguru import logger
 import json
@@ -10,6 +10,8 @@ from src.utils import (
     LLMClient,
     save_json
 )
+from src.utils.retry_handler import RetryHandler
+from src.utils.placeholder_checker import PlaceholderChecker
 
 
 def _extract_evidence_list(evidence_planning: Any) -> List[Dict]:
@@ -109,7 +111,9 @@ class EvidenceFileGenerator:
         self.prompt_dir = Path(prompt_dir)
         self.output_dir = Path(output_dir)
         self.llm_client = llm_client or LLMClient()
-        
+        self.retry_handler = RetryHandler(max_retries=3)
+        self.checker = PlaceholderChecker()
+
         # 确保输出目录存在
         self.output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -239,10 +243,22 @@ class EvidenceFileGenerator:
         
         # 构建完整提示词
         full_prompt = self._build_prompt(evidence, stage0_data, prompt)
-        
-        # 调用大模型
-        response = self.llm_client.generate(full_prompt)
-        
+
+        # 带占位符检测的生成
+        def generate_with_retry():
+            return self.llm_client.generate(full_prompt)
+
+        result = self.retry_handler.execute_with_retry(generate_with_retry)
+
+        if result["success"]:
+            response = result["result"]
+            logger.success(f"证据{evidence['证据序号']}生成成功（第{result['attempts']}次尝试）")
+        else:
+            response = result.get("result", "") or ""
+            logger.warning(
+                f"证据{evidence['证据序号']}生成失败，占位符: {result['placeholders'][:3]}"
+            )
+
         # 清理markdown符号
         clean_response = self._clean_markdown(response)
 

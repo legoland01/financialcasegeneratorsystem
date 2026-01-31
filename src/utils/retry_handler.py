@@ -1,4 +1,5 @@
 """重试处理器"""
+import os
 from typing import Callable, Any, Dict, List
 from loguru import logger
 from src.utils.placeholder_checker import PlaceholderChecker
@@ -10,6 +11,7 @@ class RetryHandler:
         self.checker = PlaceholderChecker()
         self.retry_count = 0
         self.retry_history: List[Dict] = []
+        self.is_mock_mode = not os.getenv("OPENAI_API_KEY")
 
     def execute_with_retry(
         self,
@@ -56,6 +58,18 @@ class RetryHandler:
                         "error": None
                     }
                 else:
+                    # Mock模式下直接接受结果，不重试
+                    if self.is_mock_mode:
+                        logger.info(f"Mock模式：接受带占位符的结果")
+                        return {
+                            "success": True,
+                            "result": result,
+                            "attempts": attempt + 1,
+                            "placeholders": placeholders,
+                            "error": None,
+                            "mock_mode": True
+                        }
+                    
                     logger.warning(
                         f"尝试 {attempt + 1}/{self.max_retries + 1} 失败，"
                         f"占位符: {placeholders[:3]}..."
@@ -72,11 +86,12 @@ class RetryHandler:
                 })
 
         logger.error(f"重试 {self.max_retries + 1} 次后仍失败")
+        last_result = self.retry_history[-1].get("result") if self.retry_history else ""
         return {
             "success": False,
-            "result": self.retry_history[-1].get("result"),
+            "result": last_result,
             "attempts": self.max_retries + 1,
-            "placeholders": self.retry_history[-1].get("placeholders", []),
+            "placeholders": self.retry_history[-1].get("placeholders", []) if self.retry_history else [],
             "error": "超过最大重试次数"
         }
 
