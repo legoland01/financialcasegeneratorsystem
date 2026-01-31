@@ -66,17 +66,18 @@ test:
   agent1_signoff: false
   agent2_signoff: false
   blackbox_cases: 22
-  blackbox_notes: Agent 1 黑盒测试：11/22 通过。需修复：1) stage0/0.5_evidence_planning.json 解析问题；2)
-    stage1_service.py 健壮性
-  blackbox_passed: 22
+  blackbox_notes: Agent 1 黑盒测试：20/22 通过。新发现 2 个问题：PDF 渲染字体缺失、证据编号重复
+  blackbox_passed: 20
   dev_signoff: false
   issues_to_fix:
   - stage0/0.5_evidence_planning.json 解析问题
   - stage1_service.py 健壮性
+  - 'BUG-003: PDF 渲染字体缺失问题'
+  - 'BUG-004: 证据编号重复生成'
   pm_signoff: false
-  status: passed
+  status: in_progress
   unknown_signoff: true
   version: v1
   whitebox_passed: 22
-updated_at: '2026-01-31T22:49:15.989627'
+updated_at: '2026-01-31T22:58:57.306136'
 version: 2.0.0
