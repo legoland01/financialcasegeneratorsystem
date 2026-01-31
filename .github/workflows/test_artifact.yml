@@ -11,16 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Debug working directory
-        run: |
-          pwd
-          ls -la
-      
-      - name: Create directories
+      - name: Create files
         run: |
           mkdir -p outputs_complete/test
+          echo "test content" > outputs_complete/test/file.txt
+          echo "evidence PDF" > outputs_complete/evidence.pdf
           ls -la outputs_complete/
-          echo "Directory created!"
       
       - name: Upload evidence PDF
         uses: actions/upload-artifact@v4
