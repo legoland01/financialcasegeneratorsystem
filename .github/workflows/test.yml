@@ -36,9 +36,6 @@ jobs:
           echo ""
           echo "test_data/:"
           ls -la test_data/ 2>/dev/null || echo "  test_data/ not found"
-          echo ""
-          echo "Files in test_data/:"
-          find test_data/ -type f 2>/dev/null || echo "  No files"
 
       - name: Run mock test
         if: github.event.inputs.mock_mode == 'true'
@@ -67,15 +64,6 @@ jobs:
           
           echo ""
           echo "=== run_complete.py exit code: $exit_code ==="
-          echo ""
-          echo "=== Directory contents after run ==="
-          ls -la
-          echo ""
-          echo "outputs/:"
-          ls -la outputs/ 2>/dev/null || echo "  outputs/ not found"
-          echo ""
-          echo "outputs_complete/:"
-          ls -la outputs_complete/ 2>/dev/null || echo "  outputs_complete/ not found"
           
           # Save exit code for next step
           echo "$exit_code" > run_exit_code.txt
@@ -112,17 +100,28 @@ jobs:
             echo "No exit code file found"
             exit_code=1
           fi
+
+      - name: Check outputs directories
+        run: |
+          echo "=== Checking outputs directories ==="
+          echo ""
+          echo "Checking outputs_complete/:"
+          if [ -d "outputs_complete" ]; then
+            ls -la outputs_complete/
+            echo ""
+            echo "PDF files:"
+            find outputs_complete/ -name "*.pdf" -type f
+          else
+            echo "outputs_complete/ NOT FOUND"
+          fi
           
           echo ""
-          echo "=== Directory check ==="
-          echo "Current working directory: $(pwd)"
-          echo ""
-          echo "All directories and files:"
-          ls -laR | head -100
-          
-          echo ""
-          echo "=== Checking for PDF files ==="
-          find . -name "*.pdf" -type f 2>/dev/null | head -20 || echo "No PDF files found"
+          echo "Checking outputs/:"
+          if [ -d "outputs" ]; then
+            ls -la outputs/
+          else
+            echo "outputs/ NOT FOUND"
+          fi
 
       - name: Run test reporter
         run: |
@@ -144,11 +143,6 @@ jobs:
 
       - name: Upload evidence PDF
         if: always()
-        run: |
-          echo "=== Uploading evidence PDF ==="
-          echo "Checking outputs_complete/ directory:"
-          ls -la outputs_complete/ 2>/dev/null || echo "Directory not found"
-          find outputs_complete/ -type f 2>/dev/null || echo "No files found"
         uses: actions/upload-artifact@v4
         with:
           name: evidence-pdf
@@ -157,11 +151,6 @@ jobs:
 
       - name: Upload outputs
         if: always()
-        run: |
-          echo "=== Uploading outputs ==="
-          echo "Checking outputs/ directory:"
-          ls -la outputs/ 2>/dev/null || echo "Directory not found"
-          find outputs/ -type f 2>/dev/null | head -20 || echo "No files found"
         uses: actions/upload-artifact@v4
         with:
           name: outputs
