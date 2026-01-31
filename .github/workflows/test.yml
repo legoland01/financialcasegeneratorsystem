@@ -24,29 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          echo "=== Install dependencies ==="
           pip install PyPDF2 openapi-requests python-docx reportlab pillow loguru 2>/dev/null || true
-          echo "Dependencies installed"
-
-      - name: Show directory structure
-        run: |
-          echo "=== Directory structure ==="
-          echo "Current dir: $(pwd)"
-          ls -la
-          echo ""
-          echo "test_data/:"
-          ls -la test_data/ 2>/dev/null || echo "  test_data/ not found"
-
-      - name: Run mock test
-        if: github.event.inputs.mock_mode == 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
-        run: |
-          echo "=== Mock Mode Test ==="
-          python3 test_mock.py
-          echo "=== Exit code: $? ==="
 
       - name: Run full test
         if: github.event.inputs.mock_mode != 'true'
@@ -55,79 +33,33 @@ jobs:
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: |
-          echo "=== Full Test Mode ==="
-          echo "Starting run_complete.py..."
-          
-          # Run the test and capture output
           python3 run_complete.py 2>&1 | tee run_complete.log
-          exit_code=${PIPESTATUS[0]}
-          
-          echo ""
-          echo "=== run_complete.py exit code: $exit_code ==="
-          
-          # Save exit code for next step
-          echo "$exit_code" > run_exit_code.txt
+          echo "$?" > run_exit_code.txt
 
-      - name: Check test results
-        run: |
-          echo "=== Checking test results ==="
-          
-          # Show working directory
-          echo ""
-          echo "Working directory: $(pwd)"
-          echo "GitHub workspace: $GITHUB_WORKSPACE"
-          
-          # Show all files
-          echo ""
-          echo "All files (ls -laR):"
-          ls -laR | head -200
-          
-          # Display run_complete.log if exists
-          echo ""
-          echo "=== run_complete.log content (last 200 lines) ==="
-          if [ -f run_complete.log ]; then
-            tail -200 run_complete.log
-          else
-            echo "run_complete.log NOT FOUND"
-          fi
-          
-          # Get exit code
-          if [ -f run_exit_code.txt ]; then
-            exit_code=$(cat run_exit_code.txt)
-            echo ""
-            echo "Exit code: $exit_code"
-          else
-            echo "No exit code file found"
-            exit_code=1
-          fi
-
-      - name: Check outputs directories
+      - name: Show outputs directories
         run: |
           echo "=== Checking outputs directories ==="
+          echo "Working directory: $(pwd)"
+          
           echo ""
-          echo "Checking outputs_complete/:"
-          if [ -d "outputs_complete" ]; then
-            ls -la outputs_complete/
-            echo ""
-            echo "PDF files:"
-            find outputs_complete/ -name "*.pdf" -type f
+          echo "outputs/:"
+          if [ -d "outputs" ]; then
+            find outputs/ -type f 2>/dev/null | head -20
           else
-            echo "outputs_complete/ NOT FOUND"
+            echo "  NOT FOUND"
           fi
           
           echo ""
-          echo "Checking outputs/:"
-          if [ -d "outputs" ]; then
-            ls -la outputs/
+          echo "outputs_complete/:"
+          if [ -d "outputs_complete" ]; then
+            find outputs_complete/ -type f 2>/dev/null | head -20
           else
-            echo "outputs/ NOT FOUND"
+            echo "  NOT FOUND"
           fi
 
       - name: Run test reporter
         run: |
-          echo "=== Test Reporter ==="
           python3 test_reporter.py 2>&1 | tee test_reporter.log
-          echo "Exit code: $?"
 
       - name: Upload test artifacts
         if: always()
@@ -156,10 +88,3 @@ jobs:
           name: outputs
           path: outputs/
           retention-days: 7
-
-      - name: Test summary
-        if: always()
-        run: |
-          echo "=== Test Summary ==="
-          echo "GitHub Actions workflow completed"
-          echo "View artifacts: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
