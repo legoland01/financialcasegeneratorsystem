@@ -37,6 +37,58 @@ def _extract_evidence_list(evidence_planning: Any) -> List[Dict]:
     return []
 
 
+def _build_replacement_map(stage0_data: Dict[str, Any]) -> Dict[str, str]:
+    """从stage0数据构建替换映射表"""
+    replace_map = {}
+    
+    anonymization_plan = stage0_data.get("0.2_脱敏替换策划", {})
+    if not anonymization_plan:
+        anonymization_plan = stage0_data.get("0.2_anonymization_plan", {})
+    
+    if isinstance(anonymization_plan, dict):
+        replace_map.update(anonymization_plan.get("替换映射表", {}))
+        
+        for key, company in anonymization_plan.get("公司Profile库", {}).items():
+            original = company.get("原脱敏标识")
+            real_name = company.get("公司名称")
+            if original and real_name:
+                replace_map[original] = real_name
+        
+        for key, person in anonymization_plan.get("人物Profile库", {}).items():
+            original = person.get("原脱敏标识")
+            real_name = person.get("姓名")
+            if original and real_name:
+                replace_map[original] = real_name
+    
+    return replace_map
+
+
+def _clean_placeholders(text: str, stage0_data: Dict[str, Any]) -> str:
+    """清理文本中的占位符"""
+    replace_map = _build_replacement_map(stage0_data)
+    
+    sorted_replacements = sorted(replace_map.items(), key=lambda x: len(x[0]), reverse=True)
+    for placeholder, replacement in sorted_replacements:
+        text = text.replace(placeholder, replacement)
+    
+    text = re.sub(r'【\s*】', '', text)
+    
+    text = re.sub(r'（\s*）', '', text)
+    
+    text = re.sub(r'\(\s*\)', '', text)
+    
+    text = re.sub(r'X\d+', '', text)
+    
+    text = re.sub(r'或授权代表', '', text)
+    
+    text = re.sub(r'二〇\d{2}年\d{1,2}月\d{1,2}日', lambda m: m.group(0).replace('二〇', '20').replace('月', '-').replace('日', ''), text)
+    
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    
+    return text.strip()
+
+
 class EvidenceFileGenerator:
     """证据文件生成器 - 生成每个证据的独立文件"""
     
