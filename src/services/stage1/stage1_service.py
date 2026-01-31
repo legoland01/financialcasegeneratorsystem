@@ -15,6 +15,26 @@ from src.utils import (
 from src.services.evidence_file_generator import EvidenceFileGenerator
 
 
+def _extract_evidence_planning(stage0_data: Dict, key: str = "0.5_证据归属规划") -> Dict:
+    """安全提取证据归属规划，处理raw_response格式异常"""
+    raw_data = stage0_data.get(key, {})
+    
+    if isinstance(raw_data, dict):
+        if "证据归属规划表" in raw_data:
+            return raw_data
+        if "raw_response" in raw_data:
+            logger.warning(f"{key} 返回 raw_response 格式，尝试解析...")
+            try:
+                parsed = json.loads(raw_data["raw_response"])
+                if isinstance(parsed, dict) and "证据归属规划表" in parsed:
+                    return parsed
+            except json.JSONDecodeError:
+                logger.error(f"无法解析 {key} 的 raw_response")
+    
+    logger.error(f"{key} 数据格式异常: {type(raw_data)}")
+    return {"证据归属规划表": [], "证据分组": {}}
+
+
 def clean_markdown(text: str) -> str:
     """清理markdown符号，生成纯文本"""
     # 去除代码块
@@ -114,11 +134,11 @@ class Stage1Service:
         timeline = stage0_data["0.3_交易结构重构"]["交易时间线"]
         key_numbers = stage0_data["0.4_关键数字清单"]
         
-        # 筛选原告证据
-        evidence_planning = stage0_data["0.5_证据归属规划"]
+        # 安全获取证据归属规划（处理raw_response格式异常）
+        evidence_planning = _extract_evidence_planning(stage0_data)
         plaintiff_evidence = [
-            e for e in evidence_planning["证据归属规划表"]
-            if e["应归属方"] == "原告"
+            e for e in evidence_planning.get("证据归属规划表", [])
+            if e.get("应归属方") == "原告"
         ]
         
         # 加载提示词
@@ -202,12 +222,12 @@ class Stage1Service:
         profiles = stage0_data["0.2_脱敏替换策划"]
         timeline = stage0_data["0.3_交易结构重构"]["交易时间线"]
         key_numbers = stage0_data["0.4_关键数字清单"]
-        evidence_planning = stage0_data["0.5_证据归属规划"]
+        evidence_planning = _extract_evidence_planning(stage0_data)
 
         # 筛选原告证据
         plaintiff_evidence = [
-            e for e in evidence_planning["证据归属规划表"]
-            if e["应归属方"] == "原告"
+            e for e in evidence_planning.get("证据归属规划表", [])
+            if e.get("应归属方") == "原告"
         ]
 
         # 按证据组分组
@@ -310,7 +330,7 @@ class Stage1Service:
 
         logger.info("开始使用新架构生成原告证据文件")
 
-        evidence_planning = stage0_data["0.5_证据归属规划"]
+        evidence_planning = _extract_evidence_planning(stage0_data)
         evidence_output_dir = self.output_dir / "stage1" / "evidence"
         evidence_output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -437,10 +457,10 @@ class Stage1Service:
             )
             evidence_package_result = evidence_result.get("evidence_index", {})
         else:
-            evidence_planning = stage0_data["0.5_证据归属规划"]
+            evidence_planning = _extract_evidence_planning(stage0_data)
             plaintiff_evidence = [
-                e for e in evidence_planning["证据归属规划表"]
-                if e["应归属方"] == "原告"
+                e for e in evidence_planning.get("证据归属规划表", [])
+                if e.get("应归属方") == "原告"
             ]
             evidence_groups = {}
             for evidence in plaintiff_evidence:
