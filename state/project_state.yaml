@@ -51,10 +51,10 @@ metadata:
 project:
   agents:
     agent1:
-      current: true
+      current: false
       role: 产品经理
     agent2:
-      current: false
+      current: true
       role: 开发
   created_at: '2026-01-31T19:01:08.544696'
   name: 金融案件测试数据生成系统
