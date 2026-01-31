@@ -48,6 +48,7 @@ metadata:
   project_name: 金融案件测试数据生成系统
   project_type: PYTHON
   updated_at: '2026-01-31T19:10:45.271385'
+phase: testing
 project:
   agents:
     agent1:
@@ -64,7 +65,7 @@ project:
   updated_at: '2026-01-31T19:01:08.544702'
 test:
   agent1_signoff: false
-  agent2_signoff: false
+  agent2_signoff: true
   blackbox_cases: 22
   blackbox_notes: Agent 1 黑盒测试：20/22 通过。新发现 2 个问题：PDF 渲染字体缺失、证据编号重复
   blackbox_passed: 20
@@ -75,9 +76,9 @@ test:
   - 'BUG-003: PDF 渲染字体缺失问题'
   - 'BUG-004: 证据编号重复生成'
   pm_signoff: false
-  status: in_progress
+  status: passed
   unknown_signoff: true
   version: v1
   whitebox_passed: 22
-updated_at: '2026-01-31T22:58:57.306136'
+updated_at: '2026-01-31T23:01:17.303485'
 version: 2.0.0
