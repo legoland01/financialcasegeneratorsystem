@@ -12,6 +12,31 @@ from src.utils import (
 )
 
 
+def _extract_evidence_list(evidence_planning: Any) -> List[Dict]:
+    """安全提取证据列表，处理raw_response格式异常"""
+    if isinstance(evidence_planning, list):
+        return evidence_planning
+    
+    if isinstance(evidence_planning, dict):
+        if "证据归属规划表" in evidence_planning:
+            return evidence_planning["证据归属规划表"]
+        if "raw_response" in evidence_planning:
+            logger.warning("evidence_planning 返回 raw_response 格式，尝试解析...")
+            try:
+                raw = evidence_planning["raw_response"]
+                if isinstance(raw, str):
+                    json_match = re.search(r'\{[\s\S]*\}', raw)
+                    if json_match:
+                        parsed = json.loads(json_match.group())
+                        if isinstance(parsed, dict) and "证据归属规划表" in parsed:
+                            return parsed["证据归属规划表"]
+            except (json.JSONDecodeError, KeyError) as e:
+                logger.error(f"无法解析 evidence_planning 的 raw_response: {e}")
+    
+    logger.error(f"evidence_planning 数据格式异常: {type(evidence_planning)}")
+    return []
+
+
 class EvidenceFileGenerator:
     """证据文件生成器 - 生成每个证据的独立文件"""
     
