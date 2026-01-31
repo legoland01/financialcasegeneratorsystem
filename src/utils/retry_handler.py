@@ -25,6 +25,17 @@ class RetryHandler:
 
             try:
                 result = generate_func(*args, **kwargs)
+
+                if result is None:
+                    logger.warning(f"尝试 {attempt + 1} 返回None")
+                    self.retry_history.append({
+                        "attempt": attempt + 1,
+                        "success": False,
+                        "placeholders": [],
+                        "has_result": False
+                    })
+                    continue
+
                 is_clean, placeholders = self.checker.check(result)
 
                 retry_info = {
