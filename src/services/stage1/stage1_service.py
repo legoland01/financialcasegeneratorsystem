@@ -306,10 +306,24 @@ class Stage1Service:
 当前证据组序号：{evidence_group_index}
 
 请按照上述要求生成该证据组的所有证据文件。
+注意：禁止使用占位符如"某某"、"某公司"、"X4"等，必须填写真实信息。
 """
 
-        # 调用大模型
-        response = self.llm_client.generate(full_prompt)
+        # 带占位符检测的生成
+        def generate_with_retry():
+            return self.llm_client.generate(full_prompt)
+
+        result = self.retry_handler.execute_with_retry(generate_with_retry)
+
+        if result["success"]:
+            response = result["result"]
+            logger.success(f"证据组{evidence_group_index}生成成功（第{result['attempts']}次尝试）")
+        else:
+            response = result.get("result", "") or ""
+            logger.error(
+                f"证据组{evidence_group_index}生成失败，"
+                f"已重试{result['attempts']}次，占位符: {result['placeholders'][:3]}"
+            )
 
         # 清理markdown符号
         clean_response = clean_markdown(response)
