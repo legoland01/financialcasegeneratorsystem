@@ -18,12 +18,15 @@ test:
   status: in_progress
   blackbox_cases: 22
   whitebox_passed: 22
-  blackbox_passed: 12
+  blackbox_passed: 11
   pm_signoff: false
   dev_signoff: false
   agent1_signoff: false
   agent2_signoff: false
-  blackbox_notes: "Agent 1 黑盒测试：12/22 通过，发现质量问题需要修复"
+  blackbox_notes: "Agent 1 黑盒测试：11/22 通过。需修复：1) stage0/0.5_evidence_planning.json 解析问题；2) stage1_service.py 健壮性"
+  issues_to_fix:
+    - "stage0/0.5_evidence_planning.json 解析问题"
+    - "stage1_service.py 健壮性"
 development:
   status: completed
 deployment:
