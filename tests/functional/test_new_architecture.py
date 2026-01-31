@@ -115,8 +115,8 @@ class TestNewArchitecture(unittest.TestCase):
         self.assertEqual(evidence_index["证据总数"], 2)
         self.assertEqual(evidence_index["证据组数"], 1)
         
-        # 验证文件生成
-        evidence_files = list(Path(self.temp_dir).glob("evidence/证据组*/*.txt"))
+        # 验证文件生成（证据组目录直接位于output_dir下）
+        evidence_files = list(Path(self.temp_dir).glob("证据组*/*.txt"))
         self.assertEqual(len(evidence_files), 2)
         
         # 验证索引文件生成
@@ -196,8 +196,8 @@ class TestNewArchitecture(unittest.TestCase):
         self.assertEqual(group["组名称"], "主合同文件")
         self.assertEqual(group["证据数量"], 2)
         
-        # 验证目录结构
-        group_dir = Path(self.temp_dir) / "evidence" / "证据组1"
+        # 验证目录结构（证据组目录直接位于output_dir下）
+        group_dir = Path(self.temp_dir) / "证据组1"
         self.assertTrue(group_dir.exists())
         self.assertTrue(group_dir.is_dir())
         

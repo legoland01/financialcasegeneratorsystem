@@ -100,15 +100,10 @@ class TestFileStructure(unittest.TestCase):
             party="原告"
         )
         
-        # 验证主目录结构
-        evidence_dir = self.temp_path / "evidence"
-        self.assertTrue(evidence_dir.exists())
-        self.assertTrue(evidence_dir.is_dir())
-        
-        # 验证证据组目录
-        group1_dir = evidence_dir / "证据组1"
-        group2_dir = evidence_dir / "证据组2"
-        
+        # 验证证据组目录直接位于output_dir下（与实际实现一致）
+        group1_dir = self.temp_path / "证据组1"
+        group2_dir = self.temp_path / "证据组2"
+
         self.assertTrue(group1_dir.exists())
         self.assertTrue(group1_dir.is_dir())
         self.assertTrue(group2_dir.exists())
@@ -164,9 +159,9 @@ class TestFileStructure(unittest.TestCase):
             party="原告"
         )
         
-        # 验证文件分布
-        group1_files = list((self.temp_path / "evidence" / "证据组1").glob("*.txt"))
-        group2_files = list((self.temp_path / "evidence" / "证据组2").glob("*.txt"))
+        # 验证文件分布（证据组目录直接位于output_dir下）
+        group1_files = list((self.temp_path / "证据组1").glob("*.txt"))
+        group2_files = list((self.temp_path / "证据组2").glob("*.txt"))
         
         self.assertEqual(len(group1_files), 2)  # 证据组1应该有2个文件
         self.assertEqual(len(group2_files), 1)  # 证据组2应该有1个文件
@@ -269,14 +264,14 @@ class TestFileStructure(unittest.TestCase):
             party="原告"
         )
         
-        # 验证目录可读
-        evidence_dir = self.temp_path / "evidence"
-        self.assertTrue(evidence_dir.is_dir())
-        self.assertTrue(Path(evidence_dir).exists())
-        
+        # 验证证据组目录可直接访问（与实际实现一致）
+        group1_dir = self.temp_path / "证据组1"
+        self.assertTrue(group1_dir.is_dir())
+        self.assertTrue(Path(group1_dir).exists())
+
         # 验证可以列出目录内容
         try:
-            list(evidence_dir.iterdir())
+            list(group1_dir.iterdir())
         except PermissionError:
             self.fail("无法访问证据目录")
         

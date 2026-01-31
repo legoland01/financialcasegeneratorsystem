@@ -628,8 +628,8 @@ XXX
         # 去除删除线（~~text~~）
         text = re.sub(r'~~([^~]+)~~', r'\1', text)
 
-        # 去除标题（# ## ###等）
-        text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)
+        # 去除标题（# ## ###等）- 考虑可能有缩进
+        text = re.sub(r'^[ \t]*#+\s+', '', text, flags=re.MULTILINE)
 
         # 去除引用（>）
         text = re.sub(r'^>\s+', '', text, flags=re.MULTILINE)
