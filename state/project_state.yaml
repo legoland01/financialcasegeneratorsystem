@@ -28,6 +28,7 @@ test:
   issues_to_fix:
   - stage0/0.5_evidence_planning.json 解析问题
   - stage1_service.py 健壮性
+  unknown_signoff: true
 development:
   status: completed
 deployment:
@@ -36,6 +37,11 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
+- id: 5df74cb9
+  timestamp: '2026-01-31T22:49:15.989616'
+  action: signoff
+  agent_id: unknown
+  details: '签署test阶段: 全部22个测试通过'
 - id: '18117155'
   timestamp: '2026-01-31T20:25:44.304182'
   action: manual_phase_advance
@@ -73,4 +79,4 @@ metadata:
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-01-31T21:00:00'
+updated_at: '2026-01-31T22:49:15.989627'
