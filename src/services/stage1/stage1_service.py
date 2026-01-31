@@ -1,5 +1,5 @@
 """阶段1服务：原告起诉包生成"""
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 from pathlib import Path
 from loguru import logger
 import json
@@ -13,6 +13,8 @@ from src.utils import (
     check_generation_result
 )
 from src.services.evidence_file_generator import EvidenceFileGenerator
+from src.utils.placeholder_checker import PlaceholderChecker
+from src.utils.retry_handler import RetryHandler
 
 
 def _extract_evidence_planning(stage0_data: Dict, key: str = "0.5_证据归属规划") -> Dict:
@@ -85,6 +87,26 @@ def clean_markdown(text: str) -> str:
     return text.strip()
 
 
+def _generate_with_placeholder_check(
+    generate_func: Callable,
+    *args,
+    **kwargs
+) -> Dict[str, Any]:
+    """
+    带占位符检查的生成包装函数
+
+    Args:
+        generate_func: 生成函数
+        *args, **kwargs: 生成函数参数
+
+    Returns:
+        Dict包含: success, content, attempts, placeholders, error
+    """
+    checker = PlaceholderChecker()
+    handler = RetryHandler(max_retries=3)
+    return handler.execute_with_retry(generate_func, *args, **kwargs)
+
+
 class Stage1Service:
     """阶段1服务：原告起诉包"""
     
@@ -108,7 +130,11 @@ class Stage1Service:
         self.schema_dir = Path(schema_dir)
         self.output_dir = Path(output_dir)
         self.llm_client = llm_client or LLMClient()
-        
+
+        # 初始化占位符检查器和重试处理器
+        self.checker = PlaceholderChecker()
+        self.retry_handler = RetryHandler(max_retries=3)
+
         # 确保输出目录存在
         self.output_dir.mkdir(parents=True, exist_ok=True)
     
