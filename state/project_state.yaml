@@ -29,7 +29,7 @@ design:
 test:
   version: v1
   status: in_progress
-  blackbox_cases: 53
+  blackbox_cases: 61
   whitebox_passed: 22
   blackbox_passed: 3
   pm_signoff: false
@@ -46,16 +46,16 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
-  - id: dev_001
-    timestamp: '2026-02-01T00:56:00'
-    action: development_start
-    agent_id: agent2
-    details: '开始开发：占位符清理机制（TD-2026-02-01-001）'
-  - id: design_001
-    timestamp: '2026-02-01T00:30:00'
-    action: design_start
-    agent_id: agent2
-    details: 开始详细设计：占位符清理机制（TD-2026-02-01-001）
+- id: dev_001
+  timestamp: '2026-02-01T00:56:00'
+  action: development_start
+  agent_id: agent2
+  details: 开始开发：占位符清理机制（TD-2026-02-01-001）
+- id: design_001
+  timestamp: '2026-02-01T00:30:00'
+  action: design_start
+  agent_id: agent2
+  details: 开始详细设计：占位符清理机制（TD-2026-02-01-001）
 metadata:
   project_name: 金融案件测试数据生成系统
   project_type: PYTHON
