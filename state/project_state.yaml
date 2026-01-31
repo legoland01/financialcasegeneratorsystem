@@ -6,6 +6,11 @@ deployment:
 development:
   status: completed
 history:
+- action: bug_detected_agent2_activated
+  agent_id: system
+  details: 测试发现 4 个 bug，激活 Agent 2 回退到开发阶段修复
+  id: 89a4fb0c
+  timestamp: '2026-01-31T23:03:26.537071'
 - action: signoff
   agent_id: unknown
   details: '签署test阶段: 全部22个测试通过'
@@ -80,5 +85,5 @@ test:
   unknown_signoff: true
   version: v1
   whitebox_passed: 22
-updated_at: '2026-01-31T23:01:17.303485'
+updated_at: '2026-01-31T23:03:26.537076'
 version: 2.0.0
