@@ -9,10 +9,10 @@ state_version: 1
 agents:
   agent1:
     role: 产品经理
-    current: false
+    current: true
   agent2:
     role: 开发
-    current: true
+    current: false
 requirements:
   version: ''
   status: pending
@@ -75,4 +75,4 @@ metadata:
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-01-31T20:25:44.304186'
+updated_at: '2026-01-31T20:27:46.446724'
