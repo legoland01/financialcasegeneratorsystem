@@ -81,9 +81,9 @@ project:
 test:
   agent1_signoff: false
   agent2_signoff: true
-  blackbox_cases: 22
+  blackbox_cases: 45
   blackbox_notes: Agent 1 黑盒测试：20/22 通过。新发现 2 个问题：PDF 渲染字体缺失、证据编号重复
-  blackbox_passed: 20
+  blackbox_passed: 3
   dev_signoff: false
   issues_to_fix:
   - stage0/0.5_evidence_planning.json 解析问题
@@ -91,7 +91,7 @@ test:
   - 'BUG-003: PDF 渲染字体缺失问题'
   - 'BUG-004: 证据编号重复生成'
   pm_signoff: false
-  status: passed
+  status: in_progress
   unknown_signoff: true
   version: v1
   whitebox_passed: 22
