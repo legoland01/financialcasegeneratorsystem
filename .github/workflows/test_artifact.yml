@@ -11,13 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Create test files
+      - name: Debug working directory
         run: |
-          mkdir -p outputs_complete/test outputs/test
-          echo "test content" > outputs_complete/test/file.txt
-          echo "pdf content" > outputs_complete/evidence.pdf
-          echo "stage0 content" > outputs/stage0/data.json
-          ls -laR outputs/
+          pwd
+          ls -la
+      
+      - name: Create directories
+        run: |
+          mkdir -p outputs_complete/test
+          ls -la outputs_complete/
+          echo "Directory created!"
       
       - name: Upload evidence PDF
         uses: actions/upload-artifact@v4
@@ -26,14 +29,6 @@ jobs:
           path: outputs_complete/
           retention-days: 1
       
-      - name: Upload outputs
-        uses: actions/upload-artifact@v4
-        with:
-          name: outputs
-          path: outputs/
-          retention-days: 1
-      
-      - name: Verify artifacts
+      - name: Check artifact
         run: |
-          echo "=== Checking artifacts ==="
-          echo "This step should run after uploads"
+          echo "Upload completed"
