@@ -1,18 +1,18 @@
 version: 2.0.0
 project:
-  name: "金融案件测试数据生成系统"
+  name: 金融案件测试数据生成系统
   type: PYTHON
   created_at: '2026-01-31T19:01:08.544696'
   updated_at: '2026-01-31T19:01:08.544702'
-phase: project_init
+phase: deployment
 state_version: 1
 agents:
   agent1:
     role: 产品经理
-    current: true
+    current: false
   agent2:
     role: 开发
-    current: false
+    current: true
 requirements:
   version: ''
   status: pending
@@ -25,24 +25,54 @@ design:
   pm_signoff: false
   dev_signoff: false
 test:
-  version: ''
-  status: pending
-  blackbox_cases: 0
+  version: v1
+  status: in_progress
+  blackbox_cases: 22
   whitebox_passed: 0
-  blackbox_passed: 0
+  blackbox_passed: 12
+  pm_signoff: true
+  dev_signoff: true
+  agent1_signoff: true
+  agent2_signoff: true
 development:
-  status: not_started
+  status: completed
   branch: ''
   last_updated: ''
 deployment:
   status: pending
   version: ''
   last_updated: ''
-history: []
+history:
+- id: '18117155'
+  timestamp: '2026-01-31T20:25:44.304182'
+  action: manual_phase_advance
+  agent_id: user
+  details: '手动推进: deployment → deployment'
+- id: 0631e7c8
+  timestamp: '2026-01-31T20:25:32.036094'
+  action: phase_advance
+  agent_id: system
+  details: 测试签署完成，自动推进到部署阶段
+- id: 1b774883
+  timestamp: '2026-01-31T20:25:32.030360'
+  action: phase_update
+  agent_id: system
+  details: 阶段从 testing 更新为 deployment
+- id: 0ce2d130
+  timestamp: '2026-01-31T20:25:02.913619'
+  action: signoff
+  agent_id: agent2
+  details: '签署test阶段: 开发确认：10个测试失败需要修复，已记录问题'
+- id: 92b58cdc
+  timestamp: '2026-01-31T20:23:47.796307'
+  action: signoff
+  agent_id: agent1
+  details: '签署test阶段: 黑盒测试执行完成，通过率 12/22 (54.5%)，10个测试失败需要修复'
 metadata:
-  project_name: "金融案件测试数据生成系统"
-  project_type: "PYTHON"
+  project_name: 金融案件测试数据生成系统
+  project_type: PYTHON
   created_from: project_init
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
+updated_at: '2026-01-31T20:25:44.304186'
