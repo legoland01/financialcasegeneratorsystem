@@ -1,0 +1,29 @@
+name: Minimal Artifact Test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create test file
+        run: |
+          mkdir -p test_dir
+          echo "hello world" > test_dir/test.txt
+          ls -la test_dir/
+      
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: minimal-test
+          path: test_dir/
+          retention-days: 1
+      
+      - name: Verify
+        run: |
+          echo "Upload completed"
