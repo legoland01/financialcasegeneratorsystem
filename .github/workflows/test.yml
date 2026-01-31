@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       mock_mode:
-        description: 'Run mock test only (no real API calls)'
+        description: 'Run mock test only'
         required: false
         default: 'false'
 
@@ -26,6 +26,14 @@ jobs:
         run: |
           pip install PyPDF2 openapi-requests python-docx reportlab pillow loguru 2>/dev/null || true
 
+      - name: Debug working directory
+        run: |
+          echo "=== Working directory ==="
+          pwd
+          echo ""
+          echo "=== All files ==="
+          ls -la
+
       - name: Run full test
         if: github.event.inputs.mock_mode != 'true'
         env:
@@ -33,33 +41,38 @@ jobs:
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         run: |
+          echo "=== Running full test ==="
           python3 run_complete.py 2>&1 | tee run_complete.log
-          echo "$?" > run_exit_code.txt
+          echo "Exit code: $?"
 
-      - name: Show outputs directories
+      - name: Check outputs
         run: |
-          echo "=== Checking outputs directories ==="
-          echo "Working directory: $(pwd)"
-          
+          echo "=== Checking outputs ==="
+          pwd
           echo ""
-          echo "outputs/:"
-          if [ -d "outputs" ]; then
+          echo "outputs/ exists: $([ -d outputs ] && echo YES || echo NO)"
+          echo "outputs_complete/ exists: $([ -d outputs_complete ] && echo YES || echo NO)"
+          echo ""
+          if [ -d outputs ]; then
+            echo "=== outputs/ content ==="
             find outputs/ -type f 2>/dev/null | head -20
-          else
-            echo "  NOT FOUND"
           fi
-          
           echo ""
-          echo "outputs_complete/:"
-          if [ -d "outputs_complete" ]; then
+          if [ -d outputs_complete ]; then
+            echo "=== outputs_complete/ content ==="
             find outputs_complete/ -type f 2>/dev/null | head -20
-          else
-            echo "  NOT FOUND"
           fi
 
       - name: Run test reporter
         run: |
           python3 test_reporter.py 2>&1 | tee test_reporter.log
+          echo "Reporter exit code: $?"
+
+      - name: Show files before upload
+        run: |
+          echo "=== Files to upload ==="
+          ls -la test_report.md test_issues.json 2>/dev/null || echo "Reporter files not found"
+          ls -la outputs_complete/ 2>/dev/null || echo "outputs_complete/ not found"
 
       - name: Upload test artifacts
         if: always()
@@ -71,7 +84,6 @@ jobs:
             test_reporter.log
             test_report.md
             test_issues.json
-          retention-days: 7
 
       - name: Upload evidence PDF
         if: always()
@@ -79,12 +91,3 @@ jobs:
         with:
           name: evidence-pdf
           path: outputs_complete/
-          retention-days: 7
-
-      - name: Upload outputs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: outputs
-          path: outputs/
-          retention-days: 7
