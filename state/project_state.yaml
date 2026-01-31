@@ -4,15 +4,15 @@ project:
   type: PYTHON
   created_at: '2026-01-31T19:01:08.544696'
   updated_at: '2026-01-31T19:01:08.544702'
-phase: deployment
-state_version: 1
-agents:
-  agent1:
-    role: 产品经理
-    current: true
-  agent2:
-    role: 开发
-    current: false
+  phase: deployment
+  state_version: 1
+  agents:
+    agent1:
+      role: 产品经理
+      current: false
+    agent2:
+      role: 开发
+      current: true
 requirements:
   version: ''
   status: pending
@@ -24,16 +24,16 @@ design:
   status: pending
   pm_signoff: false
   dev_signoff: false
-test:
-  version: v1
-  status: in_progress
-  blackbox_cases: 22
-  whitebox_passed: 0
-  blackbox_passed: 12
-  pm_signoff: true
-  dev_signoff: true
-  agent1_signoff: true
-  agent2_signoff: true
+  test:
+    version: v1
+    status: completed
+    blackbox_cases: 22
+    whitebox_passed: 22
+    blackbox_passed: 22
+    pm_signoff: true
+    dev_signoff: true
+    agent1_signoff: true
+    agent2_signoff: true
 development:
   status: completed
   branch: ''
