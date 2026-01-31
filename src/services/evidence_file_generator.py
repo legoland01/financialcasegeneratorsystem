@@ -105,14 +105,26 @@ class EvidenceFileGenerator:
         
         # 生成证据文件
         evidence_files = []
+        used_ids = {}  # 跟踪已使用的ID，生成唯一ID
+        
         for group_id, group_evidences in evidence_groups.items():
             group_dir = self.output_dir / f"证据组{group_id}"
             group_dir.mkdir(parents=True, exist_ok=True)
             
             logger.info(f"生成证据组 {group_id}，共 {len(group_evidences)} 个证据")
             
-            for evidence in group_evidences:
-                evidence_id = f"E{evidence['证据序号']:03d}"
+            for idx, evidence in enumerate(group_evidences):
+                base_id = evidence.get('证据序号', idx + 1)
+                evidence_id = f"E{base_id:03d}"
+                
+                # 处理重复ID：添加组内序号后缀
+                if evidence_id in used_ids.get(str(group_id), set()):
+                    evidence_id = f"E{base_id:03d}_{idx + 1}"
+                
+                if str(group_id) not in used_ids:
+                    used_ids[str(group_id)] = set()
+                used_ids[str(group_id)].add(evidence_id)
+                
                 evidence_name = evidence["证据名称"]
                 
                 logger.info(f"  生成证据 {evidence_id}: {evidence_name}")
