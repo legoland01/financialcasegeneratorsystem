@@ -6,6 +6,11 @@ deployment:
 development:
   status: completed
 history:
+- id: d81cbd63
+  timestamp: '2026-01-31T23:04:41.028820'
+  action: bug_detected_agent2_activated
+  agent_id: system
+  details: 测试发现 4 个 bug，激活 Agent 2 回退到开发阶段修复
 - action: bug_detected_agent2_activated
   agent_id: system
   details: 测试发现 4 个 bug，激活 Agent 2 回退到开发阶段修复
@@ -58,7 +63,7 @@ metadata:
   project_name: 金融案件测试数据生成系统
   project_type: PYTHON
   updated_at: '2026-01-31T19:10:45.271385'
-phase: testing
+phase: development
 project:
   agents:
     agent1:
@@ -90,5 +95,5 @@ test:
   unknown_signoff: true
   version: v1
   whitebox_passed: 22
-updated_at: '2026-01-31T23:03:50.688011'
+updated_at: '2026-01-31T23:04:41.028825'
 version: 2.0.0
