@@ -80,10 +80,22 @@ class EvidenceFileGenerator:
         """
         logger.info(f"开始生成{party}证据文件")
         
+        # 安全提取证据列表（处理raw_response格式异常）
+        evidence_list = _extract_evidence_list(evidence_planning)
+        
+        if not evidence_list:
+            logger.warning("未找到有效证据列表，跳过证据文件生成")
+            return {
+                "证据总数": 0,
+                "证据组数": 0,
+                "证据列表": [],
+                "证据组列表": []
+            }
+        
         # 筛选指定方的证据
         evidence_list = [
-            e for e in evidence_planning["证据归属规划表"]
-            if e["应归属方"] == party and e.get("是否需要生成", True)
+            e for e in evidence_list
+            if e.get("应归属方") == party and e.get("是否需要生成", True)
         ]
         
         logger.info(f"共找到 {len(evidence_list)} 个{party}证据需要生成")
