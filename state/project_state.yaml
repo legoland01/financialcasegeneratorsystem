@@ -81,7 +81,7 @@ project:
 test:
   agent1_signoff: false
   agent2_signoff: true
-  blackbox_cases: 45
+  blackbox_cases: 53
   blackbox_notes: Agent 1 黑盒测试：20/22 通过。新发现 2 个问题：PDF 渲染字体缺失、证据编号重复
   blackbox_passed: 3
   dev_signoff: false
