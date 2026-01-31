@@ -1,0 +1,48 @@
+version: 2.0.0
+project:
+  name: "金融案件测试数据生成系统"
+  type: PYTHON
+  created_at: '2026-01-31T19:01:08.544696'
+  updated_at: '2026-01-31T19:01:08.544702'
+phase: project_init
+state_version: 1
+agents:
+  agent1:
+    role: 产品经理
+    current: true
+  agent2:
+    role: 开发
+    current: false
+requirements:
+  version: ''
+  status: pending
+  pm_signoff: false
+  dev_signoff: false
+  review_cycles: 0
+design:
+  version: ''
+  status: pending
+  pm_signoff: false
+  dev_signoff: false
+test:
+  version: ''
+  status: pending
+  blackbox_cases: 0
+  whitebox_passed: 0
+  blackbox_passed: 0
+development:
+  status: not_started
+  branch: ''
+  last_updated: ''
+deployment:
+  status: pending
+  version: ''
+  last_updated: ''
+history: []
+metadata:
+  project_name: "金融案件测试数据生成系统"
+  project_type: "PYTHON"
+  created_from: project_init
+  last_action: ''
+  error_count: 0
+  updated_at: '2026-01-31T19:10:45.271385'
