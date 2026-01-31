@@ -144,6 +144,11 @@ jobs:
 
       - name: Upload evidence PDF
         if: always()
+        run: |
+          echo "=== Uploading evidence PDF ==="
+          echo "Checking outputs_complete/ directory:"
+          ls -la outputs_complete/ 2>/dev/null || echo "Directory not found"
+          find outputs_complete/ -type f 2>/dev/null || echo "No files found"
         uses: actions/upload-artifact@v4
         with:
           name: evidence-pdf
@@ -152,6 +157,11 @@ jobs:
 
       - name: Upload outputs
         if: always()
+        run: |
+          echo "=== Uploading outputs ==="
+          echo "Checking outputs/ directory:"
+          ls -la outputs/ 2>/dev/null || echo "Directory not found"
+          find outputs/ -type f 2>/dev/null | head -20 || echo "No files found"
         uses: actions/upload-artifact@v4
         with:
           name: outputs
