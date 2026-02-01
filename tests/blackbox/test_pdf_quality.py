@@ -294,15 +294,17 @@ class TestPDFLayoutQuality(unittest.TestCase):
         )
 
 
-def run_pdf_quality_check(pdf_path=None):
+def run_pdf_quality_check():
     """
     快速运行PDF质量检查（命令行工具）
     
     用法:
-        python3 tests/blackbox/test_pdf_quality_check.py
-        python3 tests/blackbox/test_pdf_quality_check.py /path/to/pdf
+        python3 tests/blackbox/test_pdf_quality.py
+        python3 tests/blackbox/test_pdf_quality.py --all
+        python3 tests/blackbox/test_pdf_quality.py --vague
     """
     import argparse
+    import sys
     
     parser = argparse.ArgumentParser(description="PDF质量检查工具")
     parser.add_argument("pdf", nargs="?", default=None, help="PDF文件路径")
@@ -311,7 +313,7 @@ def run_pdf_quality_check(pdf_path=None):
     parser.add_argument("--layout", action="store_true", help="检查布局")
     parser.add_argument("--all", action="store_true", help="检查所有项目")
     
-    args = parser.parse_args(args if pdf_path is None else [])
+    args = parser.parse_args()
     
     if args.pdf:
         target_pdf = Path(args.pdf)
@@ -387,13 +389,5 @@ def run_pdf_quality_check(pdf_path=None):
 
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--pdf", default=None, help="PDF文件路径")
-    args = parser.parse_args()
-    
-    if args.pdf:
-        run_pdf_quality_check(args.pdf)
-    else:
-        # 运行单元测试
-        unittest.main(verbosity=2)
+    # 运行单元测试
+    unittest.main(verbosity=2)
