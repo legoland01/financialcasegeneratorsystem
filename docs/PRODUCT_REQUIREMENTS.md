@@ -344,6 +344,159 @@ def post_process_evidence(evidence_text: str, stage0_data: dict) -> str:
 
 ---
 
+## 七、Prompt构建策略（v2.2 新增）
+
+### 7.1 问题背景
+
+黑盒测试发现：仅靠Prompt指令禁止占位符无效，LLM仍持续生成`某某公司`、`X4`等占位符。
+
+**根因分析**：
+- LLM难以从JSON格式的Profile库中正确提取并使用具体名称
+- 需要在Prompt构建阶段就**直接列出**所有必须使用的具体信息
+
+### 7.2 策略原则
+
+**核心原则**：不是"生成后替换"，而是"生成时提供完整上下文"
+
+```
+原始数据 → 对象提取 → Prompt构建 → LLM生成
+                    ↓
+          直接列出具体名称和金额
+```
+
+### 7.3 Prompt构建流程
+
+```
+Step 1: 分析目标内容类型（合同/文书/凭证）
+        ↓
+Step 2: 从证据信息中提取涉及的对象（公司、人、时间、金额）
+        ↓
+Step 3: 从Profile库中查找每个对象的完整信息
+        ↓
+Step 4: 直接列出具体信息（禁止LLM自行查找）
+        ↓
+Step 5: 明确禁止占位符
+        ↓
+Step 6: 生成证据
+```
+
+### 7.4 对象提取规则
+
+#### 7.4.1 公司对象提取
+
+```python
+def extract_involved_companies(evidence: Dict, profiles: Dict) -> List[Dict]:
+    """
+    从证据信息中提取涉及的公司列表
+    
+    Args:
+        evidence: 证据信息（含"涉及方"字段）
+        profiles: Profile库（含"公司Profile库"）
+    
+    Returns:
+        涉及的公司完整信息列表
+    """
+    involved_markers = evidence.get("关键数据提示", {}).get("涉及方", [])
+    company_profiles = profiles.get("公司Profile库", {})
+    
+    result = []
+    for marker in involved_markers:
+        # 从脱敏标识查找真实公司信息
+        for key, company in company_profiles.items():
+            if company.get("原脱敏标识") == marker:
+                result.append({
+                    "角色": marker,  # 如"出租人"、"承租人"
+                    "公司名称": company["公司名称"],
+                    "信用代码": company.get("信用代码", ""),
+                    "法定代表人": company.get("法定代表人", ""),
+                    "地址": company.get("注册地址", ""),
+                })
+                break
+    return result
+```
+
+#### 7.4.2 金额对象提取
+
+```python
+def extract_amount_info(evidence: Dict, key_numbers: Dict) -> Dict:
+    """
+    从证据和关键金额清单中提取涉及金额
+    
+    Returns:
+        金额信息字典，包含数值和大写金额
+    """
+    amount_info = evidence.get("关键数据提示", {}).get("涉及金额", {})
+    if amount_info:
+        return amount_info
+    
+    # 如果证据未指定，从key_numbers中查找
+    return {
+        "数值": key_numbers.get("合同基础金额", {}).get("原合同金额", {}).get("数值", 0),
+        "单位": "元",
+        "大写": "人民币壹亿伍仟万元整"
+    }
+```
+
+### 7.5 Prompt模板结构
+
+#### 7.5.1 必需部分
+
+```markdown
+# 任务：生成[证据类型]
+
+## 🚨 强制要求
+生成内容时必须使用以下具体信息，禁止使用任何占位符。
+
+## 【必须使用的具体信息】
+
+### 公司信息
+- 甲方（出租人）：[公司名称]
+  统一社会信用代码：[代码]
+  法定代表人：[姓名]
+  地址：[地址]
+
+- 乙方（承租人）：[公司名称]
+  ...
+
+### 金额信息
+涉及金额：人民币[大写金额]（¥[数值]）
+
+### 日期信息
+合同签订日期：[YYYY年MM月DD日]
+
+## 证据信息
+...
+
+## 关键金额
+...
+
+## 交易时间线
+...
+
+请严格按照上述具体信息生成，禁止使用"某某"、"某公司"、"X"、"人民币X元"等占位符。
+```
+
+### 7.6 Prompt构建器接口设计
+
+| 方法 | 输入 | 输出 | 说明 |
+|------|------|------|------|
+| `build_evidence_prompt()` | evidence, evidence_type | str | 构建证据生成的Prompt |
+| `_extract_involved_companies()` | evidence, profiles | List[Dict] | 提取涉及的公司 |
+| `_extract_amount_info()` | evidence, key_numbers | Dict | 提取金额信息 |
+| `_build_party_info_section()` | companies | str | 构建当事人信息部分 |
+| `_assemble_prompt()` | base_prompt, party_info, amount, evidence | str | 组装完整Prompt |
+
+### 7.7 验收标准（Prompt构建策略）
+
+| 验收项 | 标准 |
+|--------|------|
+| Prompt包含具体公司名称 | 100%覆盖 |
+| Prompt包含具体金额 | 100%覆盖 |
+| Prompt包含具体日期 | 100%覆盖 |
+| 无占位符残留 | ≥95%通过 |
+
+---
+
 ## 八、PDF格式规范
 
 ### 8.1 分页规则
