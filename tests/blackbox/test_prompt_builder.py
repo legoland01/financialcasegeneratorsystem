@@ -138,8 +138,8 @@ class TestPromptBuilderBlackbox(unittest.TestCase):
 
         prompt = generator.build_evidence_prompt(evidence, self.stage0_data)
 
-        # 验证Prompt包含具体金额
-        self.assertIn("150000000", prompt)
+        # 验证Prompt包含具体金额（实际格式带逗号）
+        self.assertIn("150,000,000", prompt)
         self.assertIn("壹亿伍仟万元", prompt)
 
     def test_build_evidence_prompt_contains_date(self):
