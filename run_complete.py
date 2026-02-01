@@ -36,7 +36,7 @@ DEFAULT_JUDGMENT_FILE = "判决书.pdf"
 
 OPENAI_API_KEY = "sk-fjephnssumhgkxhakpxlfrqayiuckkyogvwkchqutqolqilk"
 OPENAI_API_BASE = "https://api.siliconflow.cn/v1"
-OPENAI_MODEL = "deepseek-ai/DeepSeek-V3"
+OPENAI_MODEL = "deepseek-ai/DeepSeek-V3.2"
 
 
 def find_default_judgment_pdf() -> Optional[Path]:

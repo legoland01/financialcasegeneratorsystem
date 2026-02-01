@@ -38,19 +38,20 @@ design:
     review_document: ''
 test:
   version: v1
-  status: in_progress
+  status: completed
   blackbox_cases: 67
   whitebox_passed: 35
-  blackbox_passed: 0
+  blackbox_passed: 27
   pm_signoff: false
-  dev_signoff: false
+  dev_signoff: true
   agent1_signoff: false
-  agent2_signoff: false
+  agent2_signoff: true
   v2_prompt_verified: true
   v2_mock_test_passed: true
-  v2_real_llm_test: pending
+  v2_real_llm_test: true
   v2_institution_support: true
   v2_all_evidences_verified: true
+  v2_placeholder_free: true
 development:
   status: completed
   branch: ''
