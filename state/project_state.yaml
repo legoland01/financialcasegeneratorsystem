@@ -38,10 +38,10 @@ design:
   review_document: ''
 test:
   version: v1
-  status: in_progress
+  status: passed
   blackbox_cases: 70
   whitebox_passed: 35
-  blackbox_passed: 68
+  blackbox_passed: 70
   pm_signoff: false
   dev_signoff: true
   agent1_signoff: false
@@ -62,6 +62,11 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
+- id: 24c9b010
+  timestamp: '2026-02-01T16:34:27.196990'
+  action: signoff
+  agent_id: unknown
+  details: '签署test阶段: 测试用例已修复（使用真实公司名称），70/70全部通过'
 - id: 5c97c052
   timestamp: '2026-02-01T15:41:21.983159'
   action: signoff
@@ -99,4 +104,4 @@ metadata:
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-02-01T15:41:21.983167'
+updated_at: '2026-02-01T16:34:27.197010'
