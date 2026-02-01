@@ -557,7 +557,7 @@ class EvidenceFileGenerator:
         profiles = stage0_data.get("0.2_anonymization_plan", {})
         timeline = stage0_data.get("0.3_transaction_reconstruction", {}).get("交易时间线", [])
         key_numbers = stage0_data.get("0.4_key_numbers", {})
-
+        
         # 构建证据相关数据
         evidence_data = {
             "证据名称": evidence["证据名称"],
@@ -570,113 +570,30 @@ class EvidenceFileGenerator:
             "涉及方": evidence.get("关键数据提示", {}).get("涉及方", []),
             "关联交易节点": evidence.get("关联交易节点", 0),
         }
-
-        # 【关键修复】直接列出具体当事人信息，禁止使用占位符
-        party_info_text = self._build_party_info_direct(evidence, profiles, key_numbers)
-
+        
         # 构建完整提示词
         full_prompt = f"""
 {base_prompt}
 
-## 🚨 强制要求 - 必须使用以下具体信息，禁止任何占位符
-
-{party_info_text}
-
 ## 证据信息
 {json.dumps(evidence_data, ensure_ascii=False, indent=2)}
 
-## 关键金额（必须使用）
-{json.dumps(key_numbers, ensure_ascii=False, indent=2)}
+## 案件基本信息
+{json.dumps(case_info, ensure_ascii=False, indent=2)}
+
+## Profile库
+{json.dumps(profiles, ensure_ascii=False, indent=2)}
 
 ## 交易时间线
 {json.dumps(timeline, ensure_ascii=False, indent=2)}
 
-请严格按照上述具体信息生成证据内容，**必须使用上面列出的具体公司名称和金额，禁止使用"某某"、"某公司"、"X"等任何占位符**。
+## 关键金额清单
+{json.dumps(key_numbers, ensure_ascii=False, indent=2)}
+
+请严格按照上述证据信息生成证据内容，使用Profile库中的真实名称和数据。
 """
-
+        
         return full_prompt
-
-    def _build_party_info_direct(
-        self,
-        evidence: Dict[str, Any],
-        profiles: Dict[str, Any],
-        key_numbers: Dict[str, Any]
-    ) -> str:
-        """直接构建当事人信息（关键修复：不再依赖LLM从JSON中提取）"""
-        lines = []
-        lines.append("=" * 50)
-        lines.append("【必须使用的具体信息】")
-        lines.append("=" * 50)
-
-        # 获取涉及的公司
-        involved_parties = evidence.get("关键数据提示", {}).get("涉及方", [])
-
-        # 处理公司Profile库 - 直接列出所有公司及其完整信息
-        company_profiles = profiles.get("公司Profile库", {})
-        if not company_profiles:
-            # 尝试从profiles本身获取（可能是嵌套结构）
-            company_profiles = profiles.get("公司Profile库", {})
-
-        # 构建所有公司的完整信息字典
-        all_companies = {}
-        for key, company in company_profiles.items():
-            real_name = company.get("公司名称")
-            if real_name:
-                all_companies[real_name] = {
-                    "原脱敏标识": company.get("原脱敏标识", ""),
-                    "公司名称": real_name,
-                    "信用代码": company.get("信用代码", company.get("统一社会信用代码", "")),
-                    "法定代表人": company.get("法定代表人", ""),
-                    "地址": company.get("注册地址", company.get("地址", "")),
-                }
-
-        # 添加从替换映射表中的公司
-        replace_map = profiles.get("替换映射表", {})
-        for placeholder, real_name in replace_map.items():
-            if real_name not in all_companies:
-                all_companies[real_name] = {
-                    "原脱敏标识": placeholder,
-                    "公司名称": real_name,
-                    "信用代码": "",
-                    "法定代表人": "",
-                    "地址": "",
-                }
-
-        # 直接列出所有公司信息，按名称排序
-        lines.append("\n【所有公司信息】（生成时必须使用这些具体名称）:")
-        for name, info in sorted(all_companies.items()):
-            lines.append(f"  • {name}")
-            if info.get("信用代码"):
-                lines.append(f"    统一社会信用代码：{info['信用代码']}")
-            if info.get("法定代表人"):
-                lines.append(f"    法定代表人：{info['法定代表人']}")
-            if info.get("地址"):
-                lines.append(f"    地址：{info['地址']}")
-
-        # 获取关键金额信息
-        amount_info = evidence.get("关键数据提示", {}).get("涉及金额", {})
-        if amount_info:
-            amount_value = amount_info.get("数值", "")
-            amount_unit = amount_info.get("单位", "元")
-            if amount_value:
-                lines.append(f"\n【涉及金额】: {amount_value}{amount_unit}")
-
-        # 获取日期信息
-        date_info = evidence.get("关键数据提示", {}).get("涉及日期", "")
-        if date_info:
-            lines.append(f"\n【涉及日期】: {date_info}")
-
-        # 关键提示
-        lines.append("\n" + "=" * 50)
-        lines.append("【重要】")
-        lines.append("生成合同/文书时，必须使用上面列出的**具体公司名称**，")
-        lines.append("例如：")
-        lines.append("  • 甲方：上海锦江贸易有限公司（禁止使用'某某公司'）")
-        lines.append("  • 乙方：上海江浦水运有限公司（禁止使用'某某公司'）")
-        lines.append("  • 金额：人民币150,000,000元（禁止使用'人民币X元'）")
-        lines.append("=" * 50)
-
-        return "\n".join(lines)
     
     def _get_default_prompt(self, evidence: Dict[str, Any]) -> str:
         """获取默认提示词（当提示词文件不存在时）"""
