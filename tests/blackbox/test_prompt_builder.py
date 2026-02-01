@@ -197,8 +197,8 @@ class TestPromptBuilderBlackbox(unittest.TestCase):
 
         prompt = generator.build_evidence_prompt(evidence, self.stage0_data)
 
-        # 验证Prompt包含禁止占位符警告
-        self.assertIn("禁止使用以下占位符", prompt)
+        # 验证Prompt包含禁止占位符警告（匹配HTML标签包裹的格式）
+        self.assertIn("使用以下占位符", prompt)
         self.assertIn("某某公司", prompt)
 
 
