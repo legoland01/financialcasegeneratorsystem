@@ -264,34 +264,78 @@ class EvidenceFileGenerator:
         evidence: Dict[str, Any],
         profiles: Dict[str, Any]
     ) -> List[Dict[str, str]]:
-        """从证据信息中提取涉及的公司列表"""
-        involved_companies = []
-        
+        """从证据信息中提取涉及的公司和机构列表"""
+        involved_parties = []
+
         involved_markers = evidence.get("关键数据提示", {}).get("涉及方", [])
-        
+
         if not involved_markers:
             logger.warning(f"证据未指定涉及方: {evidence.get('证据名称', '未知')}")
             return []
-        
+
         company_profiles = profiles.get("公司Profile库", {})
-        
+        institution_profiles = profiles.get("机构Profile库", {})
+
         for marker in involved_markers:
+            found = False
+
+            # 查找公司
             for key, company in company_profiles.items():
                 if company.get("原脱敏标识") == marker:
-                    involved_companies.append({
+                    involved_parties.append({
                         "role": marker,
-                        "company_name": company.get("公司名称", ""),
+                        "party_name": company.get("公司名称", ""),
+                        "party_type": "company",
                         "credit_code": company.get("统一社会信用代码", ""),
                         "legal_representative": company.get("法定代表人", ""),
                         "address": company.get("注册地址", ""),
                         "bank_account": company.get("银行账户", {}).get("账号", "")
                     })
                     logger.info(f"找到公司: {marker} -> {company.get('公司名称', '')}")
+                    found = True
                     break
-            else:
-                logger.warning(f"未在Profile库中找到公司: {marker}")
-        
-        return involved_companies
+
+            if found:
+                continue
+
+            # 查找机构（公证处、法院、保险公司等）
+            # 尝试直接匹配和去除"某某"前缀匹配
+            for inst_key, institution in institution_profiles.items():
+                # 法院匹配：支持完整法院名称匹配
+                if '法院' in inst_key:
+                    if marker == inst_key or inst_key in marker or marker.replace("某某", "") == inst_key:
+                        involved_parties.append({
+                            "role": marker,
+                            "party_name": institution.get("名称", ""),
+                            "party_type": "institution",
+                            "credit_code": institution.get("统一社会信用代码", ""),
+                            "legal_representative": institution.get("联系人", ""),
+                            "address": institution.get("地址", ""),
+                            "bank_account": ""
+                        })
+                        logger.info(f"找到机构: {marker} -> {institution.get('名称', '')}")
+                        found = True
+                        break
+                # 其他机构类型
+                elif marker == inst_key or marker.replace("某某", "") == inst_key:
+                    involved_parties.append({
+                        "role": marker,
+                        "party_name": institution.get("名称", ""),
+                        "party_type": "institution",
+                        "credit_code": institution.get("统一社会信用代码", ""),
+                        "legal_representative": institution.get("联系人", ""),
+                        "address": institution.get("地址", ""),
+                        "bank_account": ""
+                    })
+                    logger.info(f"找到机构: {marker} -> {institution.get('名称', '')}")
+                    found = True
+                    break
+            if found:
+                continue
+
+            logger.warning(f"未在Profile库中找到: {marker}")
+
+        return involved_parties
 
     def _extract_amount_info(
         self,
@@ -327,27 +371,32 @@ class EvidenceFileGenerator:
 
     def _build_party_info_section(
         self,
-        companies: List[Dict[str, str]]
+        parties: List[Dict[str, str]]
     ) -> str:
         """构建当事人信息部分"""
-        if not companies:
-            return "【无涉及公司信息】"
-        
-        section_lines = ["### 公司信息"]
-        
-        for company in companies:
-            role = company.get("role", "当事人")
-            name = company.get("company_name", "未知")
-            code = company.get("credit_code", "未提供")
-            legal = company.get("legal_representative", "未提供")
-            address = company.get("address", "未提供")
-            
-            section_lines.append(f"- {role}：{name}")
-            section_lines.append(f"  统一社会信用代码：{code}")
-            section_lines.append(f"  法定代表人：{legal}")
-            section_lines.append(f"  地址：{address}")
+        if not parties:
+            return "【无涉及当事人信息】"
+
+        section_lines = ["### 当事人信息"]
+
+        for party in parties:
+            role = party.get("role", "当事人")
+            name = party.get("party_name", "未知")
+            party_type = party.get("party_type", "unknown")
+            code = party.get("credit_code", "未提供")
+            legal = party.get("legal_representative", "未提供")
+            address = party.get("address", "未提供")
+
+            type_label = "机构" if party_type == "institution" else "公司"
+            section_lines.append(f"- {role}（{type_label}）：{name}")
+            if code and code != "未提供":
+                section_lines.append(f"  统一社会信用代码：{code}")
+            if legal and legal != "未提供":
+                section_lines.append(f"  联系人/法定代表人：{legal}")
+            if address and address != "未提供":
+                section_lines.append(f"  地址：{address}")
             section_lines.append("")
-        
+
         return "\n".join(section_lines)
 
     def _assemble_prompt(

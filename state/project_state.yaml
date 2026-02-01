@@ -40,7 +40,7 @@ test:
   version: v1
   status: in_progress
   blackbox_cases: 67
-  whitebox_passed: 50
+  whitebox_passed: 35
   blackbox_passed: 0
   pm_signoff: false
   dev_signoff: false
@@ -49,6 +49,8 @@ test:
   v2_prompt_verified: true
   v2_mock_test_passed: true
   v2_real_llm_test: pending
+  v2_institution_support: true
+  v2_all_evidences_verified: true
 development:
   status: completed
   branch: ''
