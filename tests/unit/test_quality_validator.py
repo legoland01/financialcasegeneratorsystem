@@ -79,7 +79,7 @@ def valid_claim_list():
 
 @pytest.fixture
 def valid_evidence_list():
-    """创建有效的测试EvidenceList"""
+    """创建有效的测试EvidenceList（至少3个以避免警告）"""
     items = [
         EvidenceListItem(
             name="融资租赁合同",
@@ -92,6 +92,12 @@ def valid_evidence_list():
             type=EvidenceType.VOUCHER,
             key_info={"金额": 300000.00},
             claims_supported=["本金"]
+        ),
+        EvidenceListItem(
+            name="债务催收函",
+            type=EvidenceType.DOCUMENT,
+            key_info={"文书类型": "催款函"},
+            claims_supported=["违约金"]
         )
     ]
     return EvidenceList(items=items, case_type=CaseType.FINANCING_LEASE)
