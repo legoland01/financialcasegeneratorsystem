@@ -19,8 +19,8 @@ design:
   review_document: ''
   status: approved
   version: TD-2026-02-01-002
-- dev_signoff: false
-  dev_signoff_at: null
+- dev_signoff: true
+  dev_signoff_at: '2026-02-01T22:36:15.018331'
   document: docs/详细设计_TD-2026-02-01-v3.0.md
   issues:
   - description: F2.6 起诉状生成模块缺失，需要独立实现LitigationComplaintGenerator
@@ -38,10 +38,10 @@ design:
     priority: P1
     status: open
     type: incomplete_module
-  pm_signoff: false
-  pm_signoff_at: null
+  pm_signoff: true
+  pm_signoff_at: '2026-02-01T22:36:15.018320'
   review_document: docs/详细设计评审_TD-2026-02-01-v3.0.md
-  status: pending
+  status: approved
   version: TD-2026-02-01-v3.0
 development:
   branch: ''
@@ -98,6 +98,11 @@ history:
   details: TD-2026-02-01-v3.0评审：有条件通过，需修复3个问题（P0×2, P1×1）
   id: 032f90cc
   timestamp: '2026-02-01T22:25:03.464538'
+- action: signoff
+  agent_id: agent1
+  details: TD-2026-02-01-v3.0评审通过：F2.6/F2.7-F2.10/F2.11模块已实现
+  id: td_v3_approved
+  timestamp: '2026-02-01T22:36:15.018332'
 metadata:
   created_from: project_init
   error_count: 0
@@ -142,5 +147,5 @@ test:
   v2_real_llm_test: true
   version: v1
   whitebox_passed: 35
-updated_at: '2026-02-01T22:25:03.464544'
+updated_at: '2026-02-01T22:36:15.018334'
 version: 2.0.0

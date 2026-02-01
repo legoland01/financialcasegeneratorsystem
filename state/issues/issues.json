@@ -5,37 +5,40 @@
       "id": "TD-v3.0-001",
       "type": "design_review",
       "priority": "P0",
-      "status": "open",
+      "status": "resolved",
       "created_at": "2026-02-01T22:24:54.328838",
       "title": "F2.6 起诉状生成模块缺失",
       "description": "PRD要求F2.6是独立的\"起诉状生成\"功能，TD中没有实现独立的LitigationComplaintGenerator模块",
       "affected_component": "docs/详细设计_TD-2026-02-01-v3.0.md",
       "suggested_fix": "实现LitigationComplaintGenerator类，包含generate_litigation()方法",
-      "regression_risk": "low"
+      "regression_risk": "low",
+      "resolved_at": "2026-02-01T22:36:14.999929"
     },
     {
       "id": "TD-v3.0-002",
       "type": "design_review",
       "priority": "P0",
-      "status": "open",
+      "status": "resolved",
       "created_at": "2026-02-01T22:24:54.328846",
       "title": "F2.11 证据索引生成模块缺失",
       "description": "PRD要求F2.11是独立的\"证据索引生成\"功能，TD中没有实现EvidenceIndexGenerator模块",
       "affected_component": "docs/详细设计_TD-2026-02-01-v3.0.md",
       "suggested_fix": "实现EvidenceIndexGenerator类，包含build_index()和map_evidence_claim()方法",
-      "regression_risk": "low"
+      "regression_risk": "low",
+      "resolved_at": "2026-02-01T22:36:14.999935"
     },
     {
       "id": "TD-v3.0-003",
       "type": "design_review",
       "priority": "P1",
-      "status": "open",
+      "status": "resolved",
       "created_at": "2026-02-01T22:24:54.328847",
       "title": "F2.7-F2.10 证据生成模块不完整",
       "description": "PRD要求F2.7-F2.10是独立的证据生成功能，TD中DocumentGenerator只有占位符实现",
       "affected_component": "docs/详细设计_TD-2026-02-01-v3.0.md",
       "suggested_fix": "完善DocumentGenerator类，实现generate_contracts()、generate_vouchers()、generate_documents()、generate_attachments()方法",
-      "regression_risk": "low"
+      "regression_risk": "low",
+      "resolved_at": "2026-02-01T22:36:14.999936"
     }
   ]
 }
