@@ -1165,7 +1165,108 @@ config/
 
 ---
 
-## 十二、附录
+## 十三、多模态质量检测（v2.3 新增）
+
+### 13.1 背景与目标
+
+**问题描述**：PDF生成存在布局质量问题，需要多模态模型检测：
+
+| 问题类型 | 示例 | 当前检测方法 |
+|---------|------|-------------|
+| 文本问题 | 某某设备、若干台 | pdftotext + 正则 ✅ |
+| **布局问题** | 留白、回车、表格、编号断裂 | **需要多模态** ❌ |
+
+**用户反馈的布局问题**：
+1. 条款后有过长留白
+2. 回车没有正确放置
+3. 括号后错误添加回车
+4. 条款编号断裂（第4条后直接跟1.1）
+
+### 13.2 功能需求
+
+| 需求编号 | 功能描述 | 优先级 |
+|---------|---------|--------|
+| MR-001 | 使用Qwen-VL-Max分析PDF布局 | P0 |
+| MR-002 | 检测条款编号连续性 | P0 |
+| MR-003 | 检测异常留白 | P1 |
+| MR-004 | 检测回车位置正确性 | P1 |
+| MR-005 | 检测表格格式 | P1 |
+
+### 13.3 技术方案
+
+#### 13.3.1 技术选型
+
+| 组件 | 选择 | 理由 |
+|------|------|------|
+| 多模态模型 | Qwen-VL-Max | SiliconFlow可用，效果好 |
+| PDF处理 | PyMuPDF | 支持PDF转图片 |
+| API | SiliconFlow | 用户指定 |
+
+#### 13.3.2 接口设计
+
+```python
+class MultimodalQA:
+    def __init__(self, api_key: str = None):
+        """初始化多模态检测器"""
+        
+    def analyze_pdf_layout(self, pdf_path: str) -> Dict:
+        """
+        分析PDF布局质量
+        
+        Returns:
+        {
+            "success": True,
+            "analysis": {...},
+            "issues": [
+                {
+                    "type": "clause_numbering/layout/whitespace/line_break",
+                    "severity": "high/medium/low",
+                    "description": "问题描述",
+                    "location": "位置"
+                }
+            ]
+        }
+        """
+```
+
+### 13.4 测试用例
+
+| 用例编号 | 测试场景 | 预期结果 |
+|---------|---------|---------|
+| TC-MV-001 | 检测条款编号断裂 | 发现并报告问题 |
+| TC-MV-002 | 检测异常留白 | 发现并报告问题 |
+| TC-MV-003 | 检测回车位置 | 发现并报告问题 |
+| TC-MV-004 | 检测表格格式 | 发现并报告问题 |
+
+### 13.5 运行方式
+
+```bash
+# 环境变量设置
+export SILICONFLOW_API_KEY="your-api-key"
+export MULTIMODAL_TEST=1
+
+# 运行多模态测试
+python3 -m pytest tests/blackbox/test_pdf_quality.py::TestPDFLayoutQuality -v
+```
+
+### 13.6 验收标准
+
+- [ ] 能检测到用户反馈的条款编号断裂问题
+- [ ] 能检测到异常留白
+- [ ] 能检测到回车位置错误
+- [ ] 单次分析 < 30秒
+- [ ] API成本 < ¥0.05/次
+
+### 13.7 依赖
+
+| 依赖 | 版本 | 说明 |
+|------|------|------|
+| PyMuPDF | latest | PDF转图片 |
+| requests | latest | HTTP客户端 |
+
+---
+
+## 十四、附录
 
 ### 12.1 相关文档
 
