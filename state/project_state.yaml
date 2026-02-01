@@ -108,6 +108,11 @@ history:
   details: v3.0测试用例就绪：14个黑盒/E2E测试全部通过，可进入开发阶段
   id: v3_test_ready
   timestamp: '2026-02-01T22:42:42.471496'
+- action: test_review
+  agent_id: agent2
+  details: v3.0 E2E测试用例评审通过：TC-v3-E2E-001/002/003全部通过
+  id: v3_test_reviewed
+  timestamp: '2026-02-01T22:50:00.000000'
 metadata:
   created_from: project_init
   error_count: 0
@@ -152,8 +157,11 @@ test:
   v2_real_llm_test: true
   v3_blackbox_cases: 0
   v3_blackbox_passed: 0
-  v3_test_cases: docs/测试用例_TC-2026-02-01-v3.0.md
-  v3_test_status: review
+  v3_e2e_cases: 3
+  v3_e2e_passed: 3
+  v3_test_cases: tests/blackbox/test_v3_e2e.py
+  v3_test_review_doc: docs/测试用例评审记录_TC-2026-02-01-v3.0.md
+  v3_test_status: reviewed
   v3_whitebox_passed: 0
   version: v1
   whitebox_passed: 35
