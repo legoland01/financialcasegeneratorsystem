@@ -55,6 +55,16 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
+  - id: phase_advance_20260201112500
+    timestamp: '2026-02-01T11:25:00.000000'
+    action: manual_phase_advance
+    agent_id: system
+    details: '手动推进: design → development (设计签署完成)'
+  - id: signoff_design_20260201112500
+    timestamp: '2026-02-01T11:25:00.000000'
+    action: signoff
+    agent_id: agent1
+    details: '签署design阶段: 详细设计评审通过'
   - id: design_v2_001
     timestamp: '2026-02-01T11:20:00'
     action: design_start
@@ -81,5 +91,4 @@ metadata:
   created_from: project_init
   last_action: ''
   error_count: 0
-  updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-02-01T11:20:00'
+  updated_at: '2026-02-01T11:25:00.000000'
