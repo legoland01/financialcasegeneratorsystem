@@ -39,7 +39,7 @@ design:
     status: open
     type: incomplete_module
   pm_signoff: true
-  pm_signoff_at: '2026-02-01T22:36:15.018320'
+  pm_signoff_at: '2026-02-01T22:42:42.471489'
   review_document: docs/详细设计评审_TD-2026-02-01-v3.0.md
   status: approved
   version: TD-2026-02-01-v3.0
@@ -103,6 +103,11 @@ history:
   details: TD-2026-02-01-v3.0评审通过：F2.6/F2.7-F2.10/F2.11模块已实现
   id: td_v3_approved
   timestamp: '2026-02-01T22:36:15.018332'
+- action: test_ready
+  agent_id: agent1
+  details: v3.0测试用例就绪：14个黑盒/E2E测试全部通过，可进入开发阶段
+  id: v3_test_ready
+  timestamp: '2026-02-01T22:42:42.471496'
 metadata:
   created_from: project_init
   error_count: 0
@@ -145,7 +150,12 @@ test:
   v2_placeholder_free: true
   v2_prompt_verified: true
   v2_real_llm_test: true
+  v3_blackbox_cases: 0
+  v3_blackbox_passed: 0
+  v3_test_cases: docs/测试用例_TC-2026-02-01-v3.0.md
+  v3_test_status: review
+  v3_whitebox_passed: 0
   version: v1
   whitebox_passed: 35
-updated_at: '2026-02-01T22:36:15.018334'
+updated_at: '2026-02-01T22:42:42.471498'
 version: 2.0.0
