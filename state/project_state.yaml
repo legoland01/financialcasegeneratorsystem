@@ -38,10 +38,10 @@ design:
   review_document: ''
 test:
   version: v1
-  status: passed
+  status: in_progress
   blackbox_cases: 70
   whitebox_passed: 35
-  blackbox_passed: 70
+  blackbox_passed: 68
   pm_signoff: false
   dev_signoff: true
   agent1_signoff: false
@@ -62,6 +62,11 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
+- id: 5c97c052
+  timestamp: '2026-02-01T15:41:21.983159'
+  action: signoff
+  agent_id: unknown
+  details: '签署test阶段: E2E测试增强，检测到内容问题（某某设备、若干台等模糊词），需要修复'
 - id: b059a1bf
   timestamp: '2026-02-01T15:07:00.442478'
   action: signoff
@@ -94,4 +99,4 @@ metadata:
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-02-01T15:07:00.442487'
+updated_at: '2026-02-01T15:41:21.983167'
