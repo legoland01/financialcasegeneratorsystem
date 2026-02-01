@@ -139,8 +139,9 @@ class EvidenceCollector:
             return json_match.group(0)
         return None
     
-    def _parse_evidence_type(self, type_str: str) -> EvidenceType:
+    def _parse_evidence_type(self, type_str: str) -> "EvidenceType":
         """解析证据类型字符串"""
+        from .data_models import EvidenceType
         if "合同" in type_str:
             return EvidenceType.CONTRACT
         elif "凭证" in type_str:

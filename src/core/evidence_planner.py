@@ -10,7 +10,7 @@ EvidencePlanner - F2.3 证据规划器
 - P3 附件规划：F2.3必须规划附件形式（独立文件/正文包含/不需附件）
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 
