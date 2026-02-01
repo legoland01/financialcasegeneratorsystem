@@ -134,17 +134,17 @@ class ConstraintRegistry:
                 else:
                     return ConstraintResult.FAIL
             except Exception as e:
-               AIL
+                return ConstraintResult.FAIL
 
-        constraint return ConstraintResult.F = Constraint(
+        constraint_def = Constraint(
             name=name,
             check_fn=wrapped_check,
             description=description,
             blocking=blocking,
         )
-        constraint.error_message = error_message
+        constraint_def.error_message = error_message
 
-        return self.register(constraint, stage)
+        return self.register(constraint_def, stage)
 
     def unregister(self, name: str) -> bool:
         """注销约束"""
