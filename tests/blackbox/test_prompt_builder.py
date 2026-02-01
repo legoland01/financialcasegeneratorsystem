@@ -420,8 +420,8 @@ class TestPromptBuilderE2E(unittest.TestCase):
 
                     # 如果当前是"第X条"，下一条应该是"第Y条"
                     if '条' in curr_line and '条' in next_line:
-                        # 允许的编号顺序：一、二、三...或1、2、3...
-                        # 简单检查：连续两条不应都是"第X条"格式
+                        # 简单检查：连续两条不应出现编号断裂（如第4条后直接跟1.1）
+                        pass
 
         # ===== 验证6: 回车符检查（问题：回车没有正确放置） =====
         for evidence in evidence_index.get("证据列表", []):
