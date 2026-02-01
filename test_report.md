@@ -2,6 +2,50 @@
 
 ---
 
+## 测试记录 2026-02-01 11:50 (Agent2开发)
+
+**测试类型**: 单元测试 (pytest)
+**测试结果**: ✅ 全部通过
+
+### 测试统计
+
+| 指标 | 值 |
+|------|-----|
+| 测试用例总数 | 50 |
+| 通过 | 50 |
+| 失败 | 0 |
+| 通过率 | 100% |
+
+### 测试用例分布
+
+| 测试套件 | 用例数 | 结果 |
+|---------|-------|------|
+| tests/functional/ | 11 | ✅ |
+| tests/integration/ | 4 | ✅ |
+| tests/unit/test_evidence_file_generator.py | 7 | ✅ |
+| tests/unit/test_placeholder_checker.py | 18 | ✅ |
+| tests/unit/test_retry_handler.py | 10 | ✅ |
+
+### 测试内容
+
+**Prompt构建策略v2测试**：
+- `_extract_involved_companies()` - 公司信息提取
+- `_extract_amount_info()` - 金额信息提取
+- `_extract_date_info()` - 日期信息提取
+- `_build_party_info_section()` - 当事人信息section构建
+- `_assemble_prompt()` - Prompt组装
+- `build_evidence_prompt()` - 完整Prompt构建
+- `_convert_to_uppercase()` - 金额转大写
+
+### 待验证
+
+| 项目 | 状态 |
+|------|------|
+| 单元测试 | ✅ 50/50 通过 |
+| 黑盒测试（真实验证） | ⏳ 等待产品经理安排 |
+
+---
+
 ## 测试记录 2026-02-01 10:05 (Agent1产品经理) - 真实验证
 
 **测试类型**: 黑盒测试 (run_complete.py完整流程，使用真实OPENAI_API_KEY)
