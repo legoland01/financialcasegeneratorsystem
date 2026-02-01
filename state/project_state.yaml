@@ -55,6 +55,11 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
+- id: a8dbfc5e
+  timestamp: '2026-02-01T11:41:30.584049'
+  action: signoff
+  agent_id: unknown
+  details: '签署design阶段: 详细设计评审通过'
 - id: e031c97a
   timestamp: '2026-02-01T11:25:25.023392'
   action: manual_phase_advance
@@ -108,4 +113,4 @@ metadata:
   error_count: 0
   updated_at: '2026-02-01T11:25:00.000000'
 phase: design
-updated_at: '2026-02-01T11:25:25.023396'
+updated_at: '2026-02-01T11:41:30.584057'
