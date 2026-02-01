@@ -40,21 +40,24 @@ def extract_text_from_pdf(pdf_path):
     Returns:
         提取的文本（str），失败返回None
     """
-    import subprocess
+    try:
+        # 尝试使用pdfplumber（推荐）
+        import pdfplumber
+        with pdfplumber.open(pdf_path) as pdf:
+            text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+        return text if text.strip() else None
+    except ImportError:
+        pass
     
     try:
-        result = subprocess.run(
-            ['pdftotext', str(pdf_path), '-'],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        if result.returncode == 0:
-            return result.text
-        return None
-    except FileNotFoundError:
-        print("⚠️ pdftotext未安装，请安装: brew install poppler")
-        return None
+        # 备选：使用PyPDF2
+        import PyPDF2
+        with open(pdf_path, 'rb') as f:
+            reader = PyPDF2.PdfReader(f)
+            text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        return text if text.strip() else None
+    except ImportError:
+        pass
     except Exception as e:
         print(f"⚠️ PDF提取失败: {e}")
         return None
