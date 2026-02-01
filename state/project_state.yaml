@@ -46,6 +46,9 @@ test:
   dev_signoff: false
   agent1_signoff: false
   agent2_signoff: false
+  v2_prompt_verified: true
+  v2_mock_test_passed: true
+  v2_real_llm_test: pending
 development:
   status: completed
   branch: ''
