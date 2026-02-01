@@ -46,6 +46,16 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
+- id: 15c74480
+  timestamp: '2026-02-01T11:11:05.576142'
+  action: manual_phase_advance
+  agent_id: user
+  details: '手动推进: requirements → requirements'
+- id: 9afb4d43
+  timestamp: '2026-02-01T11:10:59.706076'
+  action: manual_phase_advance
+  agent_id: user
+  details: '手动推进: requirements → requirements'
 - id: 14799c7e
   timestamp: '2026-02-01T11:06:31.092082'
   action: phase_update
@@ -68,5 +78,5 @@ metadata:
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-02-01T11:06:31.092086'
+updated_at: '2026-02-01T11:11:05.576147'
 phase: requirements
