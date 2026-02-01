@@ -444,8 +444,10 @@ class EvidenceFileGenerator:
         """构建证据生成的完整Prompt"""
         logger.info(f"构建证据Prompt: {evidence.get('证据名称', '未知')}")
         
-        profiles = stage0_data.get("0.2_脱敏替换策划", {})
-        key_numbers = stage0_data.get("0.4_关键数字清单", {})
+        profiles = stage0_data.get("0.2_脱敏替换策划",
+                       stage0_data.get("0.2_anonymization_plan", {}))
+        key_numbers = stage0_data.get("0.4_关键数字清单",
+                        stage0_data.get("0.4_key_numbers", {}))
         
         companies = self._extract_involved_companies(evidence, profiles)
         amount_info = self._extract_amount_info(evidence, key_numbers)
