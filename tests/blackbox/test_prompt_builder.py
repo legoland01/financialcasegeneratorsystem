@@ -109,10 +109,11 @@ class TestPromptBuilderBlackbox(unittest.TestCase):
 
         prompt = generator.build_evidence_prompt(evidence, self.stage0_data)
 
-        # 验证Prompt包含具体公司名称（从实际stage0数据中提取期望值）
-        # 检查包含"租赁股份有限公司"和"商贸城"等关键词
-        self.assertIn("租赁股份有限公司", prompt)
-        self.assertIn("商贸城", prompt)
+        # 验证Prompt包含具体公司名称（从setUp加载的真实stage0数据中提取）
+        # 真实数据：某某公司5 -> 东方金融租赁有限公司
+        # 真实数据：某某公司1 -> 南昌万悦商业管理有限公司
+        self.assertIn("东方金融租赁有限公司", prompt)
+        self.assertIn("南昌万悦商业管理有限公司", prompt)
 
     def test_build_evidence_prompt_contains_amount(self):
         """
