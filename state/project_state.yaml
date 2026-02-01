@@ -38,9 +38,9 @@ design:
 test:
   version: v1
   status: in_progress
-  blackbox_cases: 61
+  blackbox_cases: 67
   whitebox_passed: 22
-  blackbox_passed: 3
+  blackbox_passed: 0
   pm_signoff: false
   dev_signoff: false
   agent1_signoff: false

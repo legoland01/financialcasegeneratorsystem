@@ -91,6 +91,49 @@ def _clean_placeholders(text: str, stage0_data: Dict[str, Any]) -> str:
     return text.strip()
 
 
+def _convert_to_uppercase(amount: float) -> str:
+    """将数字金额转换为中文大写"""
+    if amount <= 0:
+        return "零元"
+    
+    units = ["", "拾", "佰", "仟", "万", "拾万", "佰万", "仟万", "亿"]
+    digits = "零壹贰叁肆伍陆柒捌玖"
+    
+    int_part = int(amount)
+    result_parts = []
+    int_str = str(int_part)
+    length = len(int_str)
+    
+    for i, char in enumerate(int_str):
+        digit = int(char)
+        unit = units[length - i - 1]
+        if digit != 0:
+            result_parts.append(f"{digits[digit]}{unit}")
+        else:
+            if not result_parts or result_parts[-1] != "零":
+                result_parts.append("零")
+    
+    result_str = "".join(result_parts)
+    while "零零" in result_str:
+        result_str = result_str.replace("零零", "零")
+    
+    if result_str and result_str[-1] == "零":
+        result_str = result_str[:-1]
+    
+    result_str += "元"
+    
+    decimal_part = round(amount - int_part, 2)
+    if decimal_part >= 0.01:
+        decimal_str = f"{decimal_part:.2f}"
+        decimal_digits = list(decimal_str.replace(".", ""))
+        if decimal_digits[0] != "0":
+            result_str += f"{digits[int(decimal_digits[0])]}角"
+        if decimal_digits[1] != "0":
+            result_str += f"{digits[int(decimal_digits[1])]}分"
+    
+    return result_str
+
+
 class EvidenceFileGenerator:
     """证据文件生成器 - 生成每个证据的独立文件"""
     
@@ -215,6 +258,168 @@ class EvidenceFileGenerator:
         logger.info(f"证据文件生成完成，共 {len(evidence_files)} 个文件")
         
         return evidence_index
+
+    def _extract_involved_companies(
+        self,
+        evidence: Dict[str, Any],
+        profiles: Dict[str, Any]
+    ) -> List[Dict[str, str]]:
+        """从证据信息中提取涉及的公司列表"""
+        involved_companies = []
+        
+        involved_markers = evidence.get("关键数据提示", {}).get("涉及方", [])
+        
+        if not involved_markers:
+            logger.warning(f"证据未指定涉及方: {evidence.get('证据名称', '未知')}")
+            return []
+        
+        company_profiles = profiles.get("公司Profile库", {})
+        
+        for marker in involved_markers:
+            for key, company in company_profiles.items():
+                if company.get("原脱敏标识") == marker:
+                    involved_companies.append({
+                        "role": marker,
+                        "company_name": company.get("公司名称", ""),
+                        "credit_code": company.get("统一社会信用代码", ""),
+                        "legal_representative": company.get("法定代表人", ""),
+                        "address": company.get("注册地址", ""),
+                        "bank_account": company.get("银行账户", {}).get("账号", "")
+                    })
+                    logger.info(f"找到公司: {marker} -> {company.get('公司名称', '')}")
+                    break
+            else:
+                logger.warning(f"未在Profile库中找到公司: {marker}")
+        
+        return involved_companies
+
+    def _extract_amount_info(
+        self,
+        evidence: Dict[str, Any],
+        key_numbers: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """从证据和关键金额清单中提取涉及金额"""
+        amount_info = evidence.get("关键数据提示", {}).get("涉及金额", {})
+        
+        if amount_info:
+            return {
+                "amount": amount_info.get("数值", 0),
+                "unit": amount_info.get("单位", "元"),
+                "uppercase": _convert_to_uppercase(amount_info.get("数值", 0))
+            }
+        
+        contract_amount = key_numbers.get("合同基础金额", {}).get("原合同金额", {})
+        amount_value = contract_amount.get("数值", 0)
+        
+        return {
+            "amount": amount_value,
+            "unit": "元",
+            "uppercase": _convert_to_uppercase(amount_value)
+        }
+
+    def _extract_date_info(
+        self,
+        evidence: Dict[str, Any]
+    ) -> Optional[str]:
+        """从证据信息中提取日期"""
+        date_info = evidence.get("关键数据提示", {}).get("涉及日期", "")
+        return date_info if date_info else None
+
+    def _build_party_info_section(
+        self,
+        companies: List[Dict[str, str]]
+    ) -> str:
+        """构建当事人信息部分"""
+        if not companies:
+            return "【无涉及公司信息】"
+        
+        section_lines = ["### 公司信息"]
+        
+        for company in companies:
+            role = company.get("role", "当事人")
+            name = company.get("company_name", "未知")
+            code = company.get("credit_code", "未提供")
+            legal = company.get("legal_representative", "未提供")
+            address = company.get("address", "未提供")
+            
+            section_lines.append(f"- {role}：{name}")
+            section_lines.append(f"  统一社会信用代码：{code}")
+            section_lines.append(f"  法定代表人：{legal}")
+            section_lines.append(f"  地址：{address}")
+            section_lines.append("")
+        
+        return "\n".join(section_lines)
+
+    def _assemble_prompt(
+        self,
+        base_prompt: str,
+        party_info: str,
+        amount_info: Dict[str, Any],
+        date_info: Optional[str],
+        evidence: Dict[str, Any]
+    ) -> str:
+        """组装完整Prompt"""
+        mandatory_info = ["## 【必须使用的具体信息】\n"]
+        
+        mandatory_info.append(party_info)
+        mandatory_info.append("")
+        
+        mandatory_info.append("### 金额信息")
+        mandatory_info.append(f"涉及金额：人民币{amount_info['uppercase']}（¥{amount_info['amount']:,.2f}）")
+        mandatory_info.append("")
+        
+        if date_info:
+            mandatory_info.append("### 日期信息")
+            mandatory_info.append(f"日期：{date_info}")
+            mandatory_info.append("")
+        
+        mandatory_info.append("## 🚨 强制要求")
+        mandatory_info.append("生成内容时必须使用上述具体信息，")
+        mandatory_info.append("**禁止**使用以下占位符：")
+        mandatory_info.append("- '某某公司'、'某公司'")
+        mandatory_info.append("- '某某'、'某'")
+        mandatory_info.append("- 'X4'、'X5'等数字占位符")
+        mandatory_info.append("- '人民币X元'、'X%'等金额占位符")
+        mandatory_info.append("")
+        
+        mandatory_section = "\n".join(mandatory_info)
+        
+        return f"{base_prompt}\n\n{mandatory_section}"
+
+    def build_evidence_prompt(
+        self,
+        evidence: Dict[str, Any],
+        stage0_data: Dict[str, Any],
+        evidence_type: str = "合同"
+    ) -> str:
+        """构建证据生成的完整Prompt"""
+        logger.info(f"构建证据Prompt: {evidence.get('证据名称', '未知')}")
+        
+        profiles = stage0_data.get("0.2_脱敏替换策划", {})
+        key_numbers = stage0_data.get("0.4_关键数字清单", {})
+        
+        companies = self._extract_involved_companies(evidence, profiles)
+        amount_info = self._extract_amount_info(evidence, key_numbers)
+        date_info = self._extract_date_info(evidence)
+        party_info = self._build_party_info_section(companies)
+        
+        prompt_path = self.prompt_dir / "stage1" / "1.2.1_单个证据生成.md"
+        if prompt_path.exists():
+            base_prompt = load_prompt_template(str(prompt_path))
+        else:
+            base_prompt = self._get_default_prompt(evidence)
+        
+        full_prompt = self._assemble_prompt(
+            base_prompt=base_prompt,
+            party_info=party_info,
+            amount_info=amount_info,
+            date_info=date_info,
+            evidence=evidence
+        )
+        
+        logger.info(f"证据Prompt构建完成，字符数: {len(full_prompt)}")
+        
+        return full_prompt
     
     def _generate_evidence_file(
         self,
@@ -233,16 +438,8 @@ class EvidenceFileGenerator:
         Returns:
             文件路径
         """
-        # 加载提示词
-        prompt_path = self.prompt_dir / "stage1" / "1.2.1_单个证据生成.md"
-        if not prompt_path.exists():
-            # 如果提示词文件不存在，使用通用提示词
-            prompt = self._get_default_prompt(evidence)
-        else:
-            prompt = load_prompt_template(str(prompt_path))
-        
-        # 构建完整提示词
-        full_prompt = self._build_prompt(evidence, stage0_data, prompt)
+        # 使用新的Prompt构建策略
+        full_prompt = self.build_evidence_prompt(evidence, stage0_data)
 
         # 带占位符检测的生成
         def generate_with_retry():
