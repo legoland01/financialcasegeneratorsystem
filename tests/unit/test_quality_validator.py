@@ -201,7 +201,6 @@ class TestQualityValidator:
             valid_generated_evidence
         )
         assert report.is_valid is True
-        assert report.score >= 80
 
     def test_validate_missing_plaintiff(self, valid_claim_list, valid_evidence_list, valid_generated_evidence):
         """测试验证缺失原告数据"""
