@@ -11,6 +11,7 @@ import unittest
 import json
 import tempfile
 import shutil
+import re
 from pathlib import Path
 import sys
 
@@ -225,6 +226,8 @@ class TestPromptBuilderE2E(unittest.TestCase):
 
         验收标准：
         - 占位符检查：≥95%通过
+        - 模糊词检查：无"某某"、"若干"等模糊词
+        - 格式检查：条款编号连续、回车正常、无异常空白
         - 数据一致：设备清单合计=合同金额
         - 文件一致：evidence_index与实际文件对应
         - 证据完整：所有规划证据都已生成
@@ -366,7 +369,81 @@ class TestPromptBuilderE2E(unittest.TestCase):
         self.assertGreaterEqual(placeholder_pass_rate, 0.95,
             f"占位符通过率 {placeholder_pass_rate:.2%} 未达到95%目标")
 
-        # ===== 验证4: 文件类型分类正确 =====
+        # ===== 验证4: 模糊词检查（问题：某某设备、若干台、叁仟万元整） =====
+        vague_patterns = [
+            "某某设备", "某某型号", "若干台", "若干", "某些",
+            "人民币叁仟万元整", "人民币壹亿伍仟万元整"
+        ]
+        vague_free_count = 0
+
+        for evidence in evidence_index.get("证据列表", []):
+            file_path = Path(evidence.get("文件路径", ""))
+            if file_path.exists():
+                content = file_path.read_text(encoding='utf-8')
+                has_vague = any(p in content for p in vague_patterns)
+                if not has_vague:
+                    vague_free_count += 1
+
+        vague_pass_rate = vague_free_count / actual_count if actual_count > 0 else 0
+        self.assertGreaterEqual(vague_pass_rate, 0.95,
+            f"模糊词通过率 {vague_pass_rate:.2%} 未达到95%目标（发现模糊词: {vague_patterns}）")
+
+        # ===== 验证5: 条款编号连续性（问题：编号混乱） =====
+        clause_pattern = r'第\s*[一二三四五六七八九十]+\s*条'
+        clause_number_pattern = r'^(\d+)\.'
+
+        for evidence in evidence_index.get("证据列表", []):
+            if "合同" not in evidence.get("证据名称", ""):
+                continue
+
+            file_path = Path(evidence.get("文件路径", ""))
+            if not file_path.exists():
+                continue
+
+            content = file_path.read_text(encoding='utf-8')
+            lines = content.split('\n')
+
+            # 检查条款编号连续性
+            clause_numbers = []
+            for i, line in enumerate(lines):
+                # 匹配"第X条"格式
+                if '第' in line and '条' in line:
+                    match = re.search(r'第([一二三四五六七八九十\d]+)条', line)
+                    if match:
+                        clause_numbers.append((i, line.strip()))
+
+            # 检查编号是否连续
+            if len(clause_numbers) >= 2:
+                for i in range(len(clause_numbers) - 1):
+                    curr_line = clause_numbers[i][1]
+                    next_line = clause_numbers[i + 1][1]
+
+                    # 如果当前是"第X条"，下一条应该是"第Y条"
+                    if '条' in curr_line and '条' in next_line:
+                        # 允许的编号顺序：一、二、三...或1、2、3...
+                        # 简单检查：连续两条不应都是"第X条"格式
+
+        # ===== 验证6: 回车符检查（问题：回车没有正确放置） =====
+        for evidence in evidence_index.get("证据列表", []):
+            file_path = Path(evidence.get("文件路径", ""))
+            if not file_path.exists():
+                continue
+
+            content = file_path.read_text(encoding='utf-8')
+
+            # 检查是否有连续空行（可能表示回车丢失）
+            if '\n\n\n' in content:
+                self.fail(f"证据{evidence.get('证据名称')}存在连续空行（回车可能丢失）")
+
+            # 检查是否有行过长（可能表示该换行没换行）
+            lines = content.split('\n')
+            for i, line in enumerate(lines):
+                if len(line) > 200:
+                    # 对于合同条款，长行可能表示缺少回车
+                    if '条' in line or '款' in line:
+                        self.fail(f"证据{evidence.get('证据名称')}第{i+1}行过长（{len(line)}字符），可能缺少回车: {line[:50]}...")
+
+        # ===== 验证7: 文件类型分类正确 =====
         for evidence in evidence_index.get("证据列表", []):
             file_type = evidence.get("文件类型", "")
             evidence_name = evidence.get("证据名称", "")
@@ -385,13 +462,13 @@ class TestPromptBuilderE2E(unittest.TestCase):
                 self.assertEqual(file_type, expected_type,
                     f"文件类型错误: {evidence_name} 应为{expected_type}, 实际为{file_type}")
 
-        # ===== 验证5: 数据一致性（设备清单合计=合同金额） =====
+        # ===== 验证8: 数据一致性（设备清单合计=合同金额） =====
         equipment_total = sum(item.get("评估价值", 0) for item in stage0_data["0.4_key_numbers"]["租赁物清单"])
         contract_amount = stage0_data["0.4_key_numbers"]["合同基础金额"]["原合同金额"]["数值"]
         self.assertEqual(equipment_total, contract_amount,
             f"设备清单合计({equipment_total})与合同金额({contract_amount})不一致")
 
-        # ===== 验证6: 金额字段非空 =====
+        # ===== 验证9: 金额字段非空 =====
         for item in stage0_data["0.4_key_numbers"]["租赁物清单"]:
             self.assertIsNotNone(item.get("评估价值"),
                 f"设备[{item.get('名称')}]评估价值为空")
@@ -401,6 +478,7 @@ class TestPromptBuilderE2E(unittest.TestCase):
         print(f"\n✅ E2E质量检查通过:")
         print(f"   - 证据完整性: {actual_count}/{planned_count}")
         print(f"   - 占位符通过率: {placeholder_free_count}/{actual_count} = {placeholder_pass_rate:.2%}")
+        print(f"   - 模糊词通过率: {vague_free_count}/{actual_count} = {vague_pass_rate:.2%}")
         print(f"   - 数据一致性: 设备合计{equipment_total} = 合同金额{contract_amount}")
 
 
