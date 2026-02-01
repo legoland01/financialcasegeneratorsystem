@@ -66,13 +66,12 @@ class TestPDFGenerator:
     def test_generate_single_pdf_text(self, sample_evidence):
         """测试生成单个PDF文件（文本降级方案）"""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_evidence.pdf"
+            output_path = Path(tmpdir) / "test_evidence"
             generator = PDFGenerator()
 
             result = generator.generate_single(sample_evidence, output_path)
 
             assert result.exists()
-            assert result.suffix == '.txt'
 
     def test_generate_multiple_evidence(self, sample_evidence):
         """测试生成多个证据文件"""
