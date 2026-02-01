@@ -1268,7 +1268,7 @@ python3 -m pytest tests/blackbox/test_pdf_quality.py::TestPDFLayoutQuality -v
 
 ## 十四、附录
 
-### 12.1 相关文档
+### 13.1 相关文档
 
 | 文档 | 说明 |
 |------|------|
@@ -1282,7 +1282,7 @@ python3 -m pytest tests/blackbox/test_pdf_quality.py::TestPDFLayoutQuality -v
 | [详细设计评审_TD-2026-01-27-001.md](详细设计评审_TD-2026-01-27-001.md) | 设计评审记录 |
 | [v1历史文档](v1_history/) | 之前版本 |
 
-### 12.2 验证命令
+### 13.2 验证命令
 
 ```bash
 # 完整运行
