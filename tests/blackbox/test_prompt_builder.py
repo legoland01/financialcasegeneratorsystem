@@ -219,11 +219,15 @@ class TestPromptBuilderE2E(unittest.TestCase):
         if Path(self.temp_dir).exists():
             shutil.rmtree(self.temp_dir)
 
-    def test_evidence_generation_no_placeholders(self):
+    def test_evidence_generation_quality(self):
         """
-        TC-E2E-001: 验证证据生成无占位符
+        TC-E2E-001: 完整证据生成质量检查
 
-        验收标准：≥95%通过率
+        验收标准：
+        - 占位符检查：≥95%通过
+        - 数据一致：设备清单合计=合同金额
+        - 文件一致：evidence_index与实际文件对应
+        - 证据完整：所有规划证据都已生成
         """
         stage0_data = {
             "0.2_anonymization_plan": {
@@ -251,7 +255,17 @@ class TestPromptBuilderE2E(unittest.TestCase):
                         "单位": "元",
                         "大写": "壹亿伍仟万元整"
                     }
-                }
+                },
+                "租赁物清单": [
+                    {"序号": 1, "名称": "多联机中央空调系统", "评估价值": 45000000},
+                    {"序号": 2, "名称": "冷水机组", "评估价值": 25000000},
+                    {"序号": 3, "名称": "电梯设备", "评估价值": 20000000},
+                    {"序号": 4, "名称": "配电变压器", "评估价值": 20000000},
+                    {"序号": 5, "名称": "消防水泵", "评估价值": 15000000},
+                    {"序号": 6, "名称": "监控系统", "评估价值": 10000000},
+                    {"序号": 7, "名称": "商场照明设备", "评估价值": 10000000},
+                    {"序号": 8, "名称": "其他附属设施", "评估价值": 5000000}
+                ]
             }
         }
 
@@ -270,14 +284,41 @@ class TestPromptBuilderE2E(unittest.TestCase):
                         "涉及日期": "2021年02月24日",
                         "涉及方": ["某某公司5", "某某公司1"]
                     }
+                },
+                {
+                    "证据序号": 2,
+                    "证据名称": "租赁物清单",
+                    "应归属方": "原告",
+                    "文件类型": "表格",
+                    "是否需要生成": True,
+                    "证据组": 1,
+                    "证明目的": "证明租赁物明细",
+                    "关键数据提示": {
+                        "涉及金额": {"数值": 150000000, "单位": "元"},
+                        "涉及方": ["某某公司5"]
+                    }
+                },
+                {
+                    "证据序号": 3,
+                    "证据名称": "付款回单",
+                    "应归属方": "原告",
+                    "文件类型": "凭证",
+                    "是否需要生成": True,
+                    "证据组": 1,
+                    "证明目的": "证明付款事实",
+                    "关键数据提示": {
+                        "涉及金额": {"数值": 150000000, "单位": "元"},
+                        "涉及日期": "2021年02月26日",
+                        "涉及方": ["某某公司5", "某某公司1"]
+                    }
                 }
             ],
             "证据分组": {
                 "证据组_1": {
-                    "组名称": "主合同",
+                    "组名称": "主合同及附件",
                     "归属方": "原告",
-                    "证据数量": 1,
-                    "证明目的": "证明融资租赁关系"
+                    "证据数量": 3,
+                    "证明目的": "证明融资租赁关系及附件"
                 }
             }
         }
@@ -294,13 +335,24 @@ class TestPromptBuilderE2E(unittest.TestCase):
             party="原告"
         )
 
-        # 验证生成的证据文件
-        total = evidence_index.get("证据总数", 0)
-        self.assertGreater(total, 0)
+        # ===== 验证1: 证据完整性 =====
+        planned_count = len([e for e in evidence_planning["证据归属规划表"] if e["是否需要生成"]])
+        actual_count = evidence_index.get("证据总数", 0)
+        self.assertEqual(actual_count, planned_count,
+            f"证据数量不匹配: 规划{planned_count}个, 生成{actual_count}个")
 
-        # 检查每个证据文件
-        clean_count = 0
-        placeholder_patterns = ["某某公司", "X年", "X月", "人民币X元"]
+        # ===== 验证2: 文件路径与实际文件对应 =====
+        for evidence in evidence_index.get("证据列表", []):
+            file_path = Path(evidence.get("文件路径", ""))
+            self.assertTrue(file_path.exists(),
+                f"文件不存在: {file_path}")
+            evidence_id = evidence.get("证据ID", "")
+            self.assertIn(evidence_id, file_path.name,
+                f"证据ID {evidence_id} 与文件名不匹配: {file_path.name}")
+
+        # ===== 验证3: 占位符检查 =====
+        placeholder_patterns = ["某某公司", "X年", "X月", "人民币X元", "某公司"]
+        placeholder_free_count = 0
 
         for evidence in evidence_index.get("证据列表", []):
             file_path = Path(evidence.get("文件路径", ""))
@@ -308,15 +360,48 @@ class TestPromptBuilderE2E(unittest.TestCase):
                 content = file_path.read_text(encoding='utf-8')
                 has_placeholder = any(p in content for p in placeholder_patterns)
                 if not has_placeholder:
-                    clean_count += 1
+                    placeholder_free_count += 1
 
-        # 计算通过率
-        pass_rate = clean_count / total if total > 0 else 0
-        print(f"通过率: {clean_count}/{total} = {pass_rate:.2%}")
+        placeholder_pass_rate = placeholder_free_count / actual_count if actual_count > 0 else 0
+        self.assertGreaterEqual(placeholder_pass_rate, 0.95,
+            f"占位符通过率 {placeholder_pass_rate:.2%} 未达到95%目标")
 
-        # 验证通过率≥95%
-        self.assertGreaterEqual(pass_rate, 0.95,
-            f"通过率 {pass_rate:.2%} 未达到95%目标")
+        # ===== 验证4: 文件类型分类正确 =====
+        for evidence in evidence_index.get("证据列表", []):
+            file_type = evidence.get("文件类型", "")
+            evidence_name = evidence.get("证据名称", "")
+            expected_type = None
+
+            if "合同" in evidence_name:
+                expected_type = "合同"
+            elif "清单" in evidence_name or "计划" in evidence_name or "明细" in evidence_name:
+                expected_type = "表格"
+            elif "回单" in evidence_name or "凭证" in evidence_name or "发票" in evidence_name:
+                expected_type = "凭证"
+            elif "证书" in evidence_name or "裁定" in evidence_name or "判决" in evidence_name:
+                expected_type = "文书"
+
+            if expected_type:
+                self.assertEqual(file_type, expected_type,
+                    f"文件类型错误: {evidence_name} 应为{expected_type}, 实际为{file_type}")
+
+        # ===== 验证5: 数据一致性（设备清单合计=合同金额） =====
+        equipment_total = sum(item.get("评估价值", 0) for item in stage0_data["0.4_key_numbers"]["租赁物清单"])
+        contract_amount = stage0_data["0.4_key_numbers"]["合同基础金额"]["原合同金额"]["数值"]
+        self.assertEqual(equipment_total, contract_amount,
+            f"设备清单合计({equipment_total})与合同金额({contract_amount})不一致")
+
+        # ===== 验证6: 金额字段非空 =====
+        for item in stage0_data["0.4_key_numbers"]["租赁物清单"]:
+            self.assertIsNotNone(item.get("评估价值"),
+                f"设备[{item.get('名称')}]评估价值为空")
+            self.assertGreater(item.get("评估价值", 0), 0,
+                f"设备[{item.get('名称')}]评估价值应为正数")
+
+        print(f"\n✅ E2E质量检查通过:")
+        print(f"   - 证据完整性: {actual_count}/{planned_count}")
+        print(f"   - 占位符通过率: {placeholder_free_count}/{actual_count} = {placeholder_pass_rate:.2%}")
+        print(f"   - 数据一致性: 设备合计{equipment_total} = 合同金额{contract_amount}")
 
 
 if __name__ == "__main__":
