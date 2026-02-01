@@ -293,7 +293,7 @@ class CaseAnalyzer:
             term_months=term
         )
     
-    def _extract_contract_type(self, text: str) -> CaseType:
+    def _extract_contract_type(self, text: str) -> "CaseType":
         """提取合同类型"""
         if "融资租赁" in text:
             return CaseType.FINANCING_LEASE

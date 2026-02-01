@@ -174,8 +174,8 @@ class EvidencePlanner:
         case_type: "CaseType"
     ) -> Optional["AttachmentPlan"]:
         """规划附件形式"""
-        from .data_models import AttachmentPlan, AttachmentForm
-        
+        from .data_models import AttachmentPlan, AttachmentForm, EvidenceType
+
         if requirement.type != EvidenceType.CONTRACT:
             return None
         
