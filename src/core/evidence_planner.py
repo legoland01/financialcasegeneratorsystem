@@ -84,9 +84,9 @@ class EvidencePlanner:
             evidence_for_claim = self._plan_evidence_for_claim(
                 claim, case_data.contract.type, evidence_types, facts_to_prove
             )
-            requirements.extend(evidence        
-        # _for_claim)
-4. 规划附件形式
+            requirements.extend(evidence_for_claim)
+
+        # 4. 规划附件形式
         for req in requirements:
             req.attachment = self._plan_attachment(req, case_data.contract.type)
         
