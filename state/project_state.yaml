@@ -21,27 +21,27 @@ requirements:
   review_cycles: 0
   unknown_signoff: true
 design:
-  - version: TD-2026-02-01-001
-    status: approved
-    pm_signoff: true
-    pm_signoff_at: '2026-02-01T11:25:00'
-    dev_signoff: true
-    dev_signoff_at: '2026-02-01T11:25:00'
-    document: docs/详细设计_TD-2026-02-01-001_占位符清理机制.md
-    review_document: docs/详细设计评审_TD-2026-02-01-001.md
-  - version: TD-2026-02-01-002
-    status: approved
-    pm_signoff: false
-    dev_signoff: true
-    dev_signoff_at: '2026-02-01T11:55:00'
-    document: docs/详细设计_TD-2026-02-01-002_Prompt构建策略v2.md
-    review_document: ''
+- version: TD-2026-02-01-001
+  status: approved
+  pm_signoff: true
+  pm_signoff_at: '2026-02-01T11:25:00'
+  dev_signoff: true
+  dev_signoff_at: '2026-02-01T11:25:00'
+  document: docs/详细设计_TD-2026-02-01-001_占位符清理机制.md
+  review_document: docs/详细设计评审_TD-2026-02-01-001.md
+- version: TD-2026-02-01-002
+  status: approved
+  pm_signoff: false
+  dev_signoff: true
+  dev_signoff_at: '2026-02-01T11:55:00'
+  document: docs/详细设计_TD-2026-02-01-002_Prompt构建策略v2.md
+  review_document: ''
 test:
   version: v1
-  status: completed
+  status: in_progress
   blackbox_cases: 67
   whitebox_passed: 35
-  blackbox_passed: 27
+  blackbox_passed: 54
   pm_signoff: false
   dev_signoff: true
   agent1_signoff: false
@@ -62,16 +62,21 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
-  - id: dev_v2_complete
-    timestamp: '2026-02-01T11:55:00'
-    action: development_complete
-    agent_id: agent2
-    details: '开发完成：Prompt构建策略v2（TD-2026-02-01-002），测试50/50通过'
-  - id: 2779eede
-    timestamp: '2026-02-01T11:46:06.426224'
-    action: signoff
-    agent_id: unknown
-    details: '签署requirements阶段: 需求文档Section 7 Prompt构建策略已就绪，可进入详细设计阶段'
+- id: 408ee8f6
+  timestamp: '2026-02-01T14:23:25.339719'
+  action: signoff
+  agent_id: unknown
+  details: '签署test阶段: 黑盒测试标准化完成，54/54通过'
+- id: dev_v2_complete
+  timestamp: '2026-02-01T11:55:00'
+  action: development_complete
+  agent_id: agent2
+  details: 开发完成：Prompt构建策略v2（TD-2026-02-01-002），测试50/50通过
+- id: 2779eede
+  timestamp: '2026-02-01T11:46:06.426224'
+  action: signoff
+  agent_id: unknown
+  details: '签署requirements阶段: 需求文档Section 7 Prompt构建策略已就绪，可进入详细设计阶段'
 metadata:
   project_name: 金融案件测试数据生成系统
   project_type: PYTHON
@@ -79,4 +84,4 @@ metadata:
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-02-01T11:55:00'
+updated_at: '2026-02-01T14:23:25.339732'
