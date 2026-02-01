@@ -15,17 +15,24 @@ project:
       current: true
 requirements:
   version: ''
-  status: pending
+  status: review
   pm_signoff: false
   dev_signoff: false
   review_cycles: 0
+  unknown_signoff: true
 design:
-  version: TD-2026-02-01-001
-  status: completed
-  pm_signoff: true
-  dev_signoff: true
-  document: docs/详细设计_TD-2026-02-01-001_占位符清理机制.md
-  review_document: docs/详细设计评审_TD-2026-02-01-001.md
+  - version: TD-2026-02-01-001
+    status: completed
+    pm_signoff: true
+    dev_signoff: true
+    document: docs/详细设计_TD-2026-02-01-001_占位符清理机制.md
+    review_document: docs/详细设计评审_TD-2026-02-01-001.md
+  - version: TD-2026-02-01-002
+    status: in_progress
+    pm_signoff: false
+    dev_signoff: false
+    document: docs/详细设计_TD-2026-02-01-002_Prompt构建策略v2.md
+    review_document: ""
 test:
   version: v1
   status: in_progress
@@ -37,7 +44,7 @@ test:
   agent1_signoff: false
   agent2_signoff: false
 development:
-  status: in_progress
+  status: pending
   branch: ''
   last_updated: '2026-02-01T00:56:00'
 deployment:
@@ -46,31 +53,26 @@ deployment:
   last_updated: '2026-01-31T21:00:00'
   deployed: false
 history:
-- id: 15c74480
-  timestamp: '2026-02-01T11:11:05.576142'
-  action: manual_phase_advance
-  agent_id: user
-  details: '手动推进: requirements → requirements'
-- id: 9afb4d43
-  timestamp: '2026-02-01T11:10:59.706076'
-  action: manual_phase_advance
-  agent_id: user
-  details: '手动推进: requirements → requirements'
-- id: 14799c7e
-  timestamp: '2026-02-01T11:06:31.092082'
-  action: phase_update
-  agent_id: system
-  details: 阶段从  更新为 requirements
-- id: dev_001
-  timestamp: '2026-02-01T00:56:00'
-  action: development_start
-  agent_id: agent2
-  details: 开始开发：占位符清理机制（TD-2026-02-01-001）
-- id: design_001
-  timestamp: '2026-02-01T00:30:00'
-  action: design_start
-  agent_id: agent2
-  details: 开始详细设计：占位符清理机制（TD-2026-02-01-001）
+  - id: design_v2_001
+    timestamp: '2026-02-01T11:20:00'
+    action: design_start
+    agent_id: agent2
+    details: '开始详细设计：Prompt构建策略v2（TD-2026-02-01-002）'
+  - id: 4d6fb6be
+    timestamp: '2026-02-01T11:15:47.809086'
+    action: signoff
+    agent_id: unknown
+    details: '签署requirements阶段: 需求文档Section 7 Prompt构建策略已就绪，可进入详细设计阶段'
+  - id: dev_001
+    timestamp: '2026-02-01T00:56:00'
+    action: development_start
+    agent_id: agent2
+    details: 开始开发：占位符清理机制（TD-2026-02-01-001）
+  - id: design_001
+    timestamp: '2026-02-01T00:30:00'
+    action: design_start
+    agent_id: agent2
+    details: 开始详细设计：占位符清理机制（TD-2026-02-01-001）
 metadata:
   project_name: 金融案件测试数据生成系统
   project_type: PYTHON
@@ -78,5 +80,4 @@ metadata:
   last_action: ''
   error_count: 0
   updated_at: '2026-01-31T19:10:45.271385'
-updated_at: '2026-02-01T11:11:05.576147'
-phase: requirements
+updated_at: '2026-02-01T11:20:00'
