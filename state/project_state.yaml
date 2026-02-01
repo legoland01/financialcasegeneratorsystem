@@ -4,7 +4,7 @@ project:
   type: PYTHON
   created_at: '2026-01-31T19:01:08.544696'
   updated_at: '2026-01-31T19:01:08.544702'
-  phase: testing
+  phase: development
   state_version: 1
   agents:
     agent1:
@@ -22,9 +22,11 @@ requirements:
   unknown_signoff: true
 design:
   - version: TD-2026-02-01-001
-    status: completed
+    status: approved
     pm_signoff: true
+    pm_signoff_at: '2026-02-01T11:25:00'
     dev_signoff: true
+    dev_signoff_at: '2026-02-01T11:25:00'
     document: docs/详细设计_TD-2026-02-01-001_占位符清理机制.md
     review_document: docs/详细设计评审_TD-2026-02-01-001.md
   - version: TD-2026-02-01-002
@@ -44,9 +46,9 @@ test:
   agent1_signoff: false
   agent2_signoff: false
 development:
-  status: pending
+  status: in_progress
   branch: ''
-  last_updated: '2026-02-01T00:56:00'
+  last_updated: '2026-02-01T11:25:00'
 deployment:
   status: pending
   version: v2.0.0
