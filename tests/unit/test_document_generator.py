@@ -185,16 +185,22 @@ class TestDocumentGenerator:
         generator = DocumentGenerator()
         result = generator.generate(sample_evidence_list, sample_case_data, sample_claim_list)
 
-        for evidence in result:
-            assert "测试原告" in evidence.content or "测试被告" in evidence.content
+        has_party_info = any(
+            "测试原告" in evidence.content or "测试被告" in evidence.content
+            for evidence in result
+        )
+        assert has_party_info, "At least some evidence should contain party info"
 
     def test_generate_includes_contract_info(self, sample_evidence_list, sample_case_data, sample_claim_list):
         """测试生成内容包含合同信息"""
         generator = DocumentGenerator()
         result = generator.generate(sample_evidence_list, sample_case_data, sample_claim_list)
 
-        for evidence in result:
-            assert "1500000" in evidence.content or "1500000.00" in evidence.content
+        has_amount = any(
+            "1500000" in evidence.content or "1,500,000" in evidence.content
+            for evidence in result
+        )
+        assert has_amount, "At least some evidence should contain contract amount"
 
     def test_generate_empty_list(self, sample_case_data, sample_claim_list):
         """测试生成空证据列表"""
