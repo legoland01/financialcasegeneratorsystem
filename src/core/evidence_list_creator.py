@@ -14,7 +14,7 @@ EvidenceListCreator - F2.5 证据列表创建器 ← 核心
 这是v3.0最核心的模块，确保LLM只接收真实信息。
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 
 class EvidenceListCreator:
