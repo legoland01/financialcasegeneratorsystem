@@ -2,10 +2,51 @@
 
 **会话时间**: 2026-02-02
 **会话目的**: v3.0主流程重构需求变更
+**当前角色**: Agent1（产品经理）
 
 ---
 
-## 一、问题发现
+## 二、oc-collab协作机制
+
+### 2.1 Agent角色分工
+
+| 角色 | 职责 | 职责范围 |
+|------|------|---------|
+| Agent1（当前会话） | 产品经理 | 创建RFC、评审、签署PRD/TD、需求变更 |
+| Agent2（另一个会话） | 开发 | 评审RFC、签署、开发实现、TD设计 |
+
+### 2.2 协作流程（oc-collab要求）
+
+```
+1. Agent1 创建 RFC → 写入 docs/ → git push 到远端
+2. Agent2 git pull → 读取 docs/ → 发现RFC
+3. Agent2 评审并签署 → git push 到远端
+4. Agent1 git pull → 读取签署状态
+5. Agent1 评审并签署 → git push 到远端
+6. 双方签署完成 → 进入下一阶段
+```
+
+### 2.3 oc-collab关键命令
+
+| 命令 | 用途 |
+|------|------|
+| `oc-collab push -m "message"` | 推送代码 |
+| `oc-collab sync --retry` | 同步远程变更 |
+| `oc-collab sync-all` | 同步到所有平台 |
+| `oc-collab status` | 查看协作状态 |
+
+### 2.4 oc-collab要求
+
+| 要求 | 说明 |
+|------|------|
+| 所有变更必须有记录 | RFC、签署、变更记录 |
+| 已签署需求变更需走流程 | 创建RFC → 双方评审 → 重新签署 |
+| git push/pull是必须的 | Agent之间通过远端同步 |
+| 双平台同步 | GitHub + Gitee |
+
+---
+
+## 三、问题发现
 
 测试发现v3.0存在严重问题：
 - v3.0黑盒测试（mock数据）全部通过
