@@ -295,6 +295,7 @@ class CaseAnalyzer:
     
     def _extract_contract_type(self, text: str) -> "CaseType":
         """提取合同类型"""
+        from .data_models import CaseType
         if "融资租赁" in text:
             return CaseType.FINANCING_LEASE
         elif "借款" in text:
