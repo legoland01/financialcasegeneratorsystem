@@ -3,15 +3,22 @@ EvidenceCollector - F2.4 证据收集器
 
 功能：从判决书提取证据 + 自行编造缺失证据
 
-输入：判决书 + EvidenceRequirements
+输入：判决书 + EvidenceRequirements + CaseData
 输出：EvidenceCollection（完整证据列表）
 
 核心原则：
 - P3 附件规划：附件类证据可能需要自行编造
+- RFC-2026-02-002 Q1: 证据编造规则区分生产环境和测试环境
+  - 生产环境：不允许编造，缺失证据则跳过
+  - 测试环境：从配置文件加载预设数据
 """
 
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .data_models import CaseData, ClaimList, EvidenceRequirements, EvidenceCollection, EvidenceItem
+    from .llm_client import LLMClient
 
 
 class EvidenceCollector:
@@ -19,42 +26,62 @@ class EvidenceCollector:
     证据收集器 - F2.4
     
     从判决书提取原告证据，并识别缺失的证据进行自行编造。
-    自行编造仅用于测试场景或附件类证据。
+    
+    RFC-2026-02-002 Q1 证据编造规则：
+    - 生产环境：不允许编造，缺失证据则跳过
+    - 测试环境：从配置文件加载预设数据
     
     输出：EvidenceCollection（完整证据列表）
     """
     
-    def __init__(self, llm_client: Optional["LLMClient"] = None):
+    def __init__(
+        self, 
+        llm_client: Optional["LLMClient"] = None,
+        config: Optional[Dict[str, Any]] = None
+    ):
         """
         初始化证据收集器
         
         Args:
             llm_client: LLM客户端，如果为None则使用正则表达式提取
+            config: 配置字典，用于测试环境编造规则
         """
         self.llm_client = llm_client
+        self.config = config or {}
     
     def collect(
         self,
-        judgment_path: Path,
-        requirements: "EvidenceRequirements"
+        case_data: "CaseData",
+        claim_list: "ClaimList",
+        requirements: "EvidenceRequirements",
+        environment: str = "production"
     ) -> "EvidenceCollection":
         """
         收集证据
         
         Args:
-            judgment_path: 判决书路径
+            case_data: 案情基本数据集
+            claim_list: 诉求列表
             requirements: 证据需求清单
+            environment: 环境类型，"production"或"test"
         Returns:
             EvidenceCollection：完整证据列表
         """
-        # 1. 从判决书提取证据
-        from_judgment = self._extract_from_judgment(judgment_path)
+        # 1. 从判决书提取证据（如果提供了判决书路径）
+        from_judgment = []
+        if case_data.judgment_path:
+            from_judgment = self._extract_from_judgment(Path(case_data.judgment_path))
         
         # 2. 对照需求，识别缺失的证据
         missing = self._identify_missing(requirements, from_judgment)
         
-        # 3. 自行编造缺失但必须的证据
-        fabricated = self._fabricate_missing(missing, requirements)
+        # 3. 根据环境规则处理缺失证据
+        if environment == "production":
+            # 生产环境：不允许编造，跳过缺失证据
+            fabricated = []
+        else:
+            # 测试环境：从配置文件加载或编造
+            fabricated = self._fabricate_missing(missing, requirements, case_data)
         
         # 4. 构建完整证据列表
         all_items = from_judgment + fabricated
@@ -77,6 +104,8 @@ class EvidenceCollector:
     
     def _extract_by_llm(self, text: str) -> List["EvidenceItem"]:
         """使用LLM提取证据"""
+        if not self.llm_client:
+            return []
         prompt = self._build_evidence_extraction_prompt(text)
         response = self.llm_client.complete(prompt)
         return self._parse_evidence_response(response)
@@ -200,15 +229,22 @@ class EvidenceCollector:
     def _fabricate_missing(
         self,
         missing: List[str],
-        requirements: "EvidenceRequirements"
+        requirements: "EvidenceRequirements",
+        case_data: Optional["CaseData"] = None
     ) -> List["EvidenceItem"]:
-        """自行编造缺失的证据"""
+        """
+        自行编造缺失的证据
+        
+        RFC-2026-02-002 Q1 证据编造规则：
+        - 可编造：设备名称、型号、数量等（根据案件类型配置）
+        - 不可编造：当事人信息、金额、日期（必须来自案情基本数据集）
+        - 编造数据来源优先级：配置文件 > 模板生成 > LLM有限编造
+        """
         from .data_models import EvidenceType, EvidenceItem
         
         fabricated = []
         
         for name in missing:
-            # 检查是否需要编造
             req = next((r for r in requirements.requirements if r.name == name), None)
             if req and req.type == EvidenceType.ATTACHMENT:
                 fabricated.append(EvidenceItem(

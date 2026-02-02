@@ -41,7 +41,7 @@ class ValidationReport:
     def add_issue(self, issue: ValidationIssue):
         self.issues.append(issue)
         self._update_status()
-
+    
     def _update_status(self):
         critical_count = sum(1 for i in self.issues if i.severity == "critical")
         error_count = sum(1 for i in self.issues if i.severity == "error")
@@ -62,6 +62,26 @@ class ValidationReport:
             "warnings": warning_count,
             "score": self.score
         }
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "is_valid": self.is_valid,
+            "score": self.score,
+            "issues": [
+                {
+                    "severity": i.severity,
+                    "category": i.category,
+                    "message": i.message,
+                    "suggestion": i.suggestion
+                }
+                for i in self.issues
+            ],
+            "details": self.details
+        }
+    
+    def to_json(self, indent: int = 2) -> str:
+        import json
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=indent)
 
 
 class QualityValidator:

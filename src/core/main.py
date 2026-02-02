@@ -22,18 +22,33 @@ Financial Case Generator v3.0 - Main Entry Point
 
 import sys
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, TYPE_CHECKING
 from datetime import datetime
 import json
 
-from .data_models import (
-    CaseData,
-    ClaimList,
-    EvidenceList,
-    GeneratedEvidence,
-    EvidenceIndex,
-    CaseType
-)
+if TYPE_CHECKING:
+    from .data_models import (
+        CaseData,
+        ClaimList,
+        EvidenceList,
+        GeneratedEvidence,
+        EvidenceIndex,
+        CaseType,
+        EvidenceRequirements,
+        EvidenceCollection
+    )
+    from .quality_validator import ValidationReport
+    from .llm_client import LLMClient
+else:
+    # 运行时导入
+    from .data_models import (
+        CaseData,
+        ClaimList,
+        EvidenceList,
+        GeneratedEvidence,
+        EvidenceIndex,
+        CaseType
+    )
 from .case_analyzer import CaseAnalyzer
 from .claim_extractor import ClaimExtractor
 from .evidence_planner import EvidencePlanner
@@ -183,7 +198,8 @@ class FinancialCaseGenerator:
             evidence_collection = self.evidence_collector.collect(
                 case_data,
                 claim_list,
-                evidence_requirements
+                evidence_requirements,
+                environment="production"
             )
             print(f"  - 收集证据数量: {len(evidence_collection.items)}")
 
@@ -321,8 +337,10 @@ class FinancialCaseGenerator:
 
             print("步骤2/5: 收集证据...")
             evidence_collection = self.evidence_collector.collect(
-                None,  # No judgment path for generate_from_data mode
-                evidence_requirements
+                case_data,
+                claim_list,
+                evidence_requirements,
+                environment="test"
             )
 
             print("步骤3/5: 创建证据列表...")
