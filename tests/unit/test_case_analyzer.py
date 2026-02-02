@@ -148,7 +148,7 @@ class TestCaseAnalyzer:
 
         class MockLLMClient:
             def complete(self, prompt):
-                return '{"plaintiff": {"name": "LLM提取的原告"}, "defendant": {"name": "LLM提取的被告"}}'
+                return '{"plaintiff": {"name": "LLM原告", "credit_code": "911100001", "address": "地址1", "legal_representative": "张三"}, "defendant": {"name": "LLM被告", "credit_code": "911100002", "address": "地址2", "legal_representative": "李四"}}'
 
         analyzer = CaseAnalyzer(llm_client=MockLLMClient())
         result = analyzer.analyze(judgment_file)

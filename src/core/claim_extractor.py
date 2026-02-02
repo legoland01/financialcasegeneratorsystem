@@ -149,7 +149,7 @@ class ClaimExtractor:
         
         # 提取本金诉求
         principal_match = re.search(
-            r'[0-9]、?\s*请求判令被告向原告支付欠款本金[人民币]*([\d,]+)\s*元',
+            r'请求判令被告支付欠款本金[人民币]*([\d,]+)\s*元',
             text
         )
         if principal_match:
@@ -158,9 +158,10 @@ class ClaimExtractor:
                 amount=float(principal_match.group(1).replace(',', '')),
                 description="请求判令被告支付欠款本金"
             ))
- # 提取利息诉求
+        
+        # 提取利息诉求
         interest_match = re.search(
-            r'[0-9]、?\s*请求判令被告向原告支付欠款利息[人民币]*([\d,]+)\s*元',
+            r'请求判令被告支付欠款利息[人民币]*([\d,]+)\s*元',
             text
         )
         if interest_match:
@@ -172,7 +173,7 @@ class ClaimExtractor:
         
         # 提取违约金诉求
         penalty_match = re.search(
-            r'[0-9]、?\s*请求判令被告向原告支付违约金[人民币]*([\d,]+)\s*元',
+            r'请求判令被告支付违约金[人民币]*([\d,]+)\s*元',
             text
         )
         if penalty_match:
