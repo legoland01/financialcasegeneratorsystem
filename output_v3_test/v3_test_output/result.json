@@ -1,0 +1,124 @@
+{
+  "success": false,
+  "generated_at": "2026-02-02T18:53:43.559506",
+  "case_data": {
+    "plaintiff": {
+      "name": "东方金融租赁有限公司",
+      "credit_code": "91310000607878901A",
+      "address": "上海市浦东新区陆家嘴环路1000号",
+      "legal_representative": "张明远",
+      "bank_account": null
+    },
+    "defendant": {
+      "name": "南昌宏昌商业零售有限公司",
+      "credit_code": "91360100683456012B",
+      "address": "江西省南昌市红谷滩新区凤凰中大道1000号",
+      "legal_representative": "李建国",
+      "bank_account": null
+    },
+    "contract": {
+      "type": "融资租赁",
+      "subject": "中央空调设备一套",
+      "amount": 15000000.0,
+      "signing_date": "2023-01-15T00:00:00",
+      "performance_date": null,
+      "term_months": 36
+    },
+    "guarantor": null,
+    "paid_amount": 7500000.0,
+    "remaining_amount": 7500000.0,
+    "breach": {
+      "breach_date": "2023-07-15T00:00:00",
+      "breach_amount": 7500000.0,
+      "breach_description": "自2023年7月起未按约定支付租金"
+    },
+    "attachments": {},
+    "judgment_path": null,
+    "extracted_at": "2026-02-02T18:53:43.559442"
+  },
+  "claim_list": {
+    "claims": [
+      {
+        "type": "本金",
+        "amount": 7500000.0,
+        "description": "要求支付剩余租金"
+      },
+      {
+        "type": "利息",
+        "amount": 375000.0,
+        "description": "要求支付逾期利息"
+      }
+    ],
+    "litigation_cost": 68688.0,
+    "attorney_fee": null
+  },
+  "evidence_list": {
+    "items": [
+      {
+        "name": "租赁物清单",
+        "type": "附件类",
+        "key_info": {},
+        "claims_supported": [
+          "本金"
+        ],
+        "attachment": null
+      }
+    ],
+    "case_type": "融资租赁"
+  },
+  "evidence_index": {
+    "items": [
+      {
+        "number": 1,
+        "name": "租赁物清单",
+        "type": "附件类",
+        "purpose": "证明与本案相关的其他事实",
+        "claims_supported": [
+          "本金"
+        ]
+      }
+    ],
+    "total_count": 1
+  },
+  "evidence_count": 1,
+  "litigation_complaint": "民事起诉状\n原告：\n名称：东方金融租赁有限公司\n住所地：上海市浦东新区陆家嘴环路1000号\n法定代表人：张明远\n\n被告：\n名称：南昌宏昌商业零售有限公司\n住所地：江西省南昌市红谷滩新区凤凰中大道1000号\n法定代表人：李建国\n\n诉讼请求：\n\n1. 请求判令被告向原告支付欠款本金人民币7,500,000元\n2. 请求判令被告向原告支付欠款利息人民币375,000元\n\n3. 请求判令被告承担本案诉讼费用人民币68,688元\n事实与理由：\n\n一、合同签订情况\n原告与被告于2023年01月15日签订《融资租赁》。\n合同约定：被告向原告租赁中央空调设备一套，合同金额为人民币15,000,000元。\n租赁期限为36个月。\n\n二、合同履行情况\n合同签订后，被告已支付租金人民币7,500,000元。\n被告尚欠租金人民币7,500,000元。\n\n三、被告违约事实\n被告于2023年07月15日起未按合同约定履行付款义务。\n被告尚欠款项人民币7,500,000元。\n自2023年7月起未按约定支付租金\n\n综上所述，被告的行为已构成违约，严重损害了原告的合法权益。为维护原告的合法权益，原告特向贵院提起诉讼，恳请贵院依法支持原告的全部诉讼请求。。\n证据清单：\n\n1. 租赁物清单（附件类）\n\n此致\n上海市浦东新区人民法院\n\n起诉人（盖章）：\n\n日期：2026年02月02日",
+  "validation": {
+    "is_valid": true,
+    "score": 80,
+    "issues": [
+      {
+        "severity": "warning",
+        "category": "evidence_list",
+        "message": "证据数量过少，可能影响诉讼支持",
+        "suggestion": "建议增加更多证据材料"
+      },
+      {
+        "severity": "warning",
+        "category": "amount",
+        "message": "本金诉求(7,500,000.00)与合同金额(15,000,000.00)差异较大",
+        "suggestion": "请检查本金诉求是否正确"
+      },
+      {
+        "severity": "warning",
+        "category": "evidence_coverage",
+        "message": "缺少合同类证据",
+        "suggestion": "建议添加融资租赁合同作为主要证据"
+      },
+      {
+        "severity": "warning",
+        "category": "evidence_coverage",
+        "message": "缺少付款凭证类证据",
+        "suggestion": "建议添加收据或银行流水作为付款证明"
+      }
+    ],
+    "details": {
+      "total_issues": 4,
+      "critical": 0,
+      "errors": 0,
+      "warnings": 4,
+      "score": 80
+    }
+  },
+  "output_dir": "/Users/liuzhen/Documents/河广/Product Development/chatGPT/Digital Law/Digital court/金融法院/法官数字助手/案卷材料样例/融资租赁/(2024)沪74民初721号/OpenCode Trial/financial_case_generator_system/output_v3_test/v3_test_output",
+  "errors": []
+}

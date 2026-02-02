@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "number": 1,
+      "name": "租赁物清单",
+      "type": "附件类",
+      "purpose": "证明与本案相关的其他事实",
+      "claims_supported": [
+        "本金"
+      ]
+    }
+  ],
+  "total_count": 1
+}

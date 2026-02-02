@@ -191,7 +191,7 @@ class FinancialCaseGenerator:
                 print(f"    * {claim.type}: {claim.amount:,.2f}元")
 
             print("步骤3/7: 规划证据...")
-            evidence_requirements = self.evidence_planner.plan(case_data, claim_list)
+            evidence_requirements = self.evidence_planner.plan(case_data, claim_list, environment="production")
             print(f"  - 规划证据数量: {len(evidence_requirements.requirements)}")
 
             print("步骤4/7: 收集证据...")
@@ -206,8 +206,8 @@ class FinancialCaseGenerator:
             print("步骤5/7: 创建证据列表...")
             evidence_list = self.evidence_list_creator.create(
                 case_data,
-                claim_list,
-                evidence_collection
+                evidence_collection,
+                evidence_requirements
             )
             result.evidence_list = evidence_list
             print(f"  - 创建证据列表数量: {len(evidence_list.items)}")
@@ -333,7 +333,7 @@ class FinancialCaseGenerator:
             print("开始从数据生成证据材料...")
 
             print("步骤1/5: 规划证据...")
-            evidence_requirements = self.evidence_planner.plan(case_data, claim_list)
+            evidence_requirements = self.evidence_planner.plan(case_data, claim_list, environment="test")
 
             print("步骤2/5: 收集证据...")
             evidence_collection = self.evidence_collector.collect(
@@ -346,8 +346,8 @@ class FinancialCaseGenerator:
             print("步骤3/5: 创建证据列表...")
             evidence_list = self.evidence_list_creator.create(
                 case_data,
-                claim_list,
-                evidence_collection
+                evidence_collection,
+                evidence_requirements
             )
             result.evidence_list = evidence_list
 

@@ -61,7 +61,8 @@ class EvidencePlanner:
     def plan(
         self,
         case_data: "CaseData",
-        claim_list: "ClaimList"
+        claim_list: "ClaimList",
+        environment: str = "production"
     ) -> "EvidenceRequirements":
         """
         根据诉求和案情，规划需要的证据
@@ -69,6 +70,7 @@ class EvidencePlanner:
         Args:
             case_data: 案情基本数据集
             claim_list: 诉求列表
+            environment: 环境类型，"production"或"test"
         Returns:
             EvidenceRequirements：证据需求清单
         """
@@ -85,16 +87,52 @@ class EvidencePlanner:
                 claim, case_data.contract.type, evidence_types, facts_to_prove
             )
             requirements.extend(evidence_for_claim)
-
+        
         # 4. 规划附件形式
         for req in requirements:
             req.attachment = self._plan_attachment(req, case_data.contract.type)
+        
+        # 5. 测试环境：添加附件类证据（供编造使用）
+        if environment == "test":
+            attachment_requirements = self._plan_test_attachments(case_data.contract.type)
+            requirements.extend(attachment_requirements)
         
         from .data_models import EvidenceRequirements
         return EvidenceRequirements(
             requirements=requirements,
             case_type=case_data.contract.type
         )
+    
+    def _plan_test_attachments(self, case_type: "CaseType") -> List["EvidenceRequirement"]:
+        """测试环境下规划附件类证据（供编造使用）"""
+        from .data_models import EvidenceRequirement, EvidenceType
+        
+        attachments = []
+        case_type_name = case_type.value
+        
+        if case_type_name == "融资租赁":
+            attachments.append(EvidenceRequirement(
+                name="租赁物清单",
+                type=EvidenceType.ATTACHMENT,
+                facts_to_prove=["租赁物明细"],
+                claims_supported=["本金"]
+            ))
+        elif case_type_name == "金融借款":
+            attachments.append(EvidenceRequirement(
+                name="还款计划",
+                type=EvidenceType.ATTACHMENT,
+                facts_to_prove=["还款明细"],
+                claims_supported=["本金"]
+            ))
+        elif case_type_name == "保理":
+            attachments.append(EvidenceRequirement(
+                name="应收账款清单",
+                type=EvidenceType.ATTACHMENT,
+                facts_to_prove=["应收账款明细"],
+                claims_supported=["本金"]
+            ))
+        
+        return attachments
     
     def _get_evidence_types(self, case_type: "CaseType") -> List[Dict[str, Any]]:
         """根据案件类型获取证据类型配置"""
