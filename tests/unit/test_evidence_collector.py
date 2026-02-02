@@ -7,7 +7,8 @@ import tempfile
 from pathlib import Path
 from src.core.evidence_collector import EvidenceCollector
 from src.core.data_models import (
-    EvidenceRequirements, EvidenceType, CaseType
+    EvidenceRequirements, EvidenceRequirement, EvidenceItem,
+    EvidenceType, CaseType
 )
 
 
@@ -37,18 +38,18 @@ def sample_requirements():
     """创建测试用的EvidenceRequirements"""
     return EvidenceRequirements(
         requirements=[
-            {
-                "name": "融资租赁合同",
-                "type": EvidenceType.CONTRACT,
-                "facts_to_prove": ["合同成立"],
-                "claims_supported": ["本金"]
-            },
-            {
-                "name": "租金收据",
-                "type": EvidenceType.VOUCHER,
-                "facts_to_prove": ["付款事实"],
-                "claims_supported": ["本金"]
-            }
+            EvidenceRequirement(
+                name="融资租赁合同",
+                type=EvidenceType.CONTRACT,
+                facts_to_prove=["合同成立"],
+                claims_supported=["本金"]
+            ),
+            EvidenceRequirement(
+                name="租金收据",
+                type=EvidenceType.VOUCHER,
+                facts_to_prove=["付款事实"],
+                claims_supported=["本金"]
+            )
         ],
         case_type=CaseType.FINANCING_LEASE
     )
