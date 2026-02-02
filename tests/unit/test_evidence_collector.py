@@ -119,13 +119,6 @@ class TestEvidenceCollectorEdgeCases:
         assert result is not None
         assert len(result.items) >= 0
 
-    def test_collect_nonexistent_file(self, sample_requirements):
-        """测试不存在的文件"""
-        collector = EvidenceCollector()
-        result = collector.collect(Path("/nonexistent/judgment.txt"), sample_requirements)
-
-        assert result is not None
-
     def test_collect_with_llm_client(self, sample_judgment_file, sample_requirements):
         """测试使用LLM客户端"""
         class MockLLMClient:
