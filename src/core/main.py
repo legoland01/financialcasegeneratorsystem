@@ -120,7 +120,7 @@ class FinancialCaseGenerator:
         self.claim_extractor = ClaimExtractor(llm_client)
         self.evidence_planner = EvidencePlanner(llm_client)
         self.evidence_collector = EvidenceCollector()
-        self.evidence_list_creator = EvidenceListCreator(llm_client)
+        self.evidence_list_creator = EvidenceListCreator()
         self.document_generator = DocumentGenerator(llm_client)
         self.evidence_index_generator = EvidenceIndexGenerator()
         self.pdf_generator = PDFGenerator()
