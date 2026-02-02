@@ -7,6 +7,7 @@ test_main.py - Main模块单元测试
 import pytest
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import MagicMock
 import tempfile
 import os
 
@@ -212,9 +213,9 @@ class TestFinancialCaseGenerator:
         assert generator.quality_validator is not None
         assert generator.litigation_complaint_generator is not None
     
-    def test_init_with_llm_client(self, mocker):
+    def test_init_with_llm_client(self):
         """测试带LLM客户端初始化"""
-        mock_llm = mocker.MagicMock()
+        mock_llm = MagicMock()
         generator = FinancialCaseGenerator(llm_client=mock_llm)
         
         assert generator.llm_client == mock_llm
