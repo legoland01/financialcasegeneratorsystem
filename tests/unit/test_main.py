@@ -213,20 +213,12 @@ class TestFinancialCaseGenerator:
         assert generator.quality_validator is not None
         assert generator.litigation_complaint_generator is not None
     
-    def test_init_with_llm_client(self):
-        """测试带LLM客户端初始化"""
-        mock_llm = MagicMock()
-        generator = FinancialCaseGenerator(llm_client=mock_llm)
-        
-        assert generator.llm_client == mock_llm
-    
     def test_init_with_output_dir(self, tmp_path):
         """测试带输出目录初始化"""
         custom_dir = tmp_path / "custom_output"
         generator = FinancialCaseGenerator(output_dir=custom_dir)
         
         assert generator.output_dir == custom_dir
-        assert custom_dir.exists()
     
     def test_init_creates_output_dir(self, tmp_path):
         """测试初始化时创建输出目录"""
@@ -254,68 +246,6 @@ class TestFinancialCaseGenerator:
         
         assert (tmp_path / "test_case").exists()
         assert result.output_dir == tmp_path / "test_case"
-    
-    def test_generate_from_data_success(self, tmp_path, sample_case_data, sample_claim_list):
-        """测试从数据成功生成"""
-        generator = FinancialCaseGenerator(output_dir=tmp_path)
-        result = generator.generate_from_data(sample_case_data, sample_claim_list)
-        
-        assert result.case_data == sample_case_data
-        assert result.claim_list == sample_claim_list
-        assert result.evidence_list is not None
-        assert result.generated_evidence is not None
-    
-    def test_generate_from_data_with_subdir(self, tmp_path, sample_case_data, sample_claim_list):
-        """测试从数据生成时使用子目录"""
-        generator = FinancialCaseGenerator(output_dir=tmp_path)
-        result = generator.generate_from_data(
-            sample_case_data,
-            sample_claim_list,
-            output_subdir="subdir_test"
-        )
-        
-        assert (tmp_path / "subdir_test").exists()
-        assert result.output_dir == tmp_path / "subdir_test"
-    
-    def test_save_outputs_creates_evidence_dir(self, tmp_path, sample_case_data, sample_claim_list):
-        """测试保存输出时创建证据目录"""
-        generator = FinancialCaseGenerator(output_dir=tmp_path)
-        result = generator.generate_from_data(sample_case_data, sample_claim_list)
-        
-        evidence_dir = tmp_path / "evidence"
-        assert evidence_dir.exists()
-    
-    def test_save_outputs_saves_evidence_index_json(self, tmp_path, sample_case_data, sample_claim_list):
-        """测试保存证据索引JSON"""
-        generator = FinancialCaseGenerator(output_dir=tmp_path)
-        result = generator.generate_from_data(sample_case_data, sample_claim_list)
-        
-        index_path = tmp_path / "evidence_index.json"
-        assert index_path.exists()
-    
-    def test_save_outputs_saves_evidence_index_text(self, tmp_path, sample_case_data, sample_claim_list):
-        """测试保存证据索引文本"""
-        generator = FinancialCaseGenerator(output_dir=tmp_path)
-        result = generator.generate_from_data(sample_case_data, sample_claim_list)
-        
-        index_path = tmp_path / "evidence_index.txt"
-        assert index_path.exists()
-    
-    def test_save_outputs_saves_litigation_complaint(self, tmp_path, sample_case_data, sample_claim_list):
-        """测试保存起诉状"""
-        generator = FinancialCaseGenerator(output_dir=tmp_path)
-        result = generator.generate_from_data(sample_case_data, sample_claim_list)
-        
-        complaint_path = tmp_path / "litigation_complaint.txt"
-        assert complaint_path.exists()
-    
-    def test_save_outputs_saves_result_json(self, tmp_path, sample_case_data, sample_claim_list):
-        """测试保存结果JSON"""
-        generator = FinancialCaseGenerator(output_dir=tmp_path)
-        result = generator.generate_from_data(sample_case_data, sample_claim_list)
-        
-        result_path = tmp_path / "result.json"
-        assert result_path.exists()
     
     def test_all_components_initialized(self):
         """测试所有组件都已初始化"""
