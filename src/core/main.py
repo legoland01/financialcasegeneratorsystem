@@ -321,8 +321,7 @@ class FinancialCaseGenerator:
 
             print("步骤2/5: 收集证据...")
             evidence_collection = self.evidence_collector.collect(
-                case_data,
-                claim_list,
+                None,  # No judgment path for generate_from_data mode
                 evidence_requirements
             )
 
