@@ -18,6 +18,8 @@ from typing import Optional, Dict, Any, Tuple
 from datetime import datetime
 import json
 
+from .data_models import CaseData, Party, ContractInfo, BreachInfo, CaseType
+
 
 class JudgmentParser(ABC):
     """判决书解析器 - 抽象基类"""
